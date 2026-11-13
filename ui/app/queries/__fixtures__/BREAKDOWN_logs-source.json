@@ -1,0 +1,62 @@
+[
+ {
+  "key": "Container Output",
+  "records": "2796278",
+  "value": 601749242
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/loganalytics/oneagent-logmon-detailed.log",
+  "records": "512167",
+  "value": 76476655
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/process/oneagenthelper_#-#-#_#_#_#.log",
+  "records": "661855",
+  "value": 69591746
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/os/networkStats.log",
+  "records": "864",
+  "value": 2403874
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/os/OSAgentSystemComponents.log",
+  "records": "18476",
+  "value": 2221552
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/network/ruxitagent_network_#.#.log",
+  "records": "1421",
+  "value": 1855420
+ },
+ {
+  "key": "/var/log/syslog",
+  "records": "4874",
+  "value": 779071
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/os/ruxitagent_host_#.#.log",
+  "records": "2142",
+  "value": 715394
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/os/oneagent_nettracer_#.log",
+  "records": "4635",
+  "value": 694757
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/loganalytics/oneagent-logmon-general.log",
+  "records": "463",
+  "value": 566668
+ },
+ {
+  "key": "Journald",
+  "records": "5323",
+  "value": 466784
+ },
+ {
+  "key": "/var/log/dynatrace/oneagent/loganalytics/ruxitagent_oneagentloganalytics_#.#.log",
+  "records": "893",
+  "value": 288690
+ }
+]

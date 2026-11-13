@@ -1,0 +1,156 @@
+# Ingest Volume Estimator
+
+A Dynatrace platform app that shows how much data a tenant ingests per signal (logs, metrics,
+traces, events), what it costs at list price (or your rate card), and what it would cost at
+production scale.
+
+- **SEs during a POC:** measure POC ingest and extrapolate the production cost.
+- **Customers after go-live:** save a baseline, optimise (drop rules, sampling, retention), then
+  compare.
+
+Design: [`docs/plans/2026-11-13-ingest-volume-estimator-design.md`](../../docs/plans/2026-11-13-ingest-volume-estimator-design.md)
+
+## Pages
+
+| Page | What it shows |
+|---|---|
+| Overview | Volume, per-day volume and estimated cost per signal, change against the active baseline, daily ingest (volume or cost), cost share, and a table by bucket with retention and stored volume |
+| Signals | Top contributors per signal (log source / namespace / host, service, monitoring source / metric key, billing category / provider). Runs only when you click **Run breakdown**, after it shows an estimated scan size and query cost |
+| Extrapolate | Detected POC drivers (hosts, services, pods, clusters, containers) with overrides, a driver per signal, production counts, a multiplier and retention days. Shows a projected monthly volume and cost per signal, with CSV export |
+| Baselines | Labelled snapshots of per-day ingest and driver counts. Set one active for the Overview, or compare two |
+| Settings | The rate card: ingest price, retain price per GiB-day and included retention per signal, plus currency |
+| Flow | OpenPipeline sources → pipelines → destinations per signal (LOGS / METRICS / TRACES / EVENTS) over 5m, 1h or 24h. Edges show ~GiB/s or records/s; hover a node to trace its paths, click it for details |
+
+## How it works
+
+| Tier | Source | When |
+|---|---|---|
+| 1 Billing | `dt.system.events`, `event.kind == "BILLING_USAGE_EVENT"` (Ingest & Process and Retain) | On load |
+| 2 Drivers | `smartscapeNodes` counts and Full-Stack / Infrastructure host billing | On load |
+| 3 Breakdown | Raw `logs`, `spans`, `events`, `metric.series` (and billing events for metrics and events) | Only on request, last 24 h by default |
+
+Tier 1 is the source of truth for volume and cost. Tier 3 only splits volume into shares.
+
+Extrapolation, per signal:
+
+```
+rate_per_unit    = POC volume per day / POC driver count
+prod_per_day     = rate_per_unit × production driver count × multiplier
+ingest_cost/mo   = prod_per_day × 30 × ingest price
+retain_cost/mo   = prod_per_day × max(0, retention − included days) × retain price × 30
+```
+
+All DQL lives in [`ui/app/queries/`](ui/app/queries/). The maths lives in [`ui/app/shared/`](ui/app/shared/)
+as pure functions with Jest tests.
+
+### Flow page
+
+- **Edges:** `dt.sfm.openpipeline.routing.records` (source → pipeline, by `route_name`) and
+  `dt.sfm.openpipeline.pipelines_out.records` (pipeline → bucket). Source totals come from
+  `dt.sfm.openpipeline.ingest_sources_in.records`. Rate = records in the window ÷ window seconds.
+- **Pipelines:** when the metrics carry `pipeline_id`, it is matched to the pipeline's `customId`.
+  Otherwise (as on rkj7350h) the metric `route_name` is matched to a routing entry's description
+  in `builtin:openpipeline.<configuration>.routing`, whose `pipelineId` names the pipeline. The
+  `default` route is the built-in default pipeline.
+- **Pipeline → bucket:** `pipelines_out` has no pipeline dimension without `pipeline_id`. With one
+  active pipeline per configuration the edge is exact; with several, a bucket's records are split
+  by each pipeline's inflow share and drawn dashed.
+- **~bytes/s:** records/s × the bucket's average billed bytes per record (24h billing ÷ 24h
+  `pipelines_out` records). Metrics are billed by data points, so METRICS always shows records/s;
+  buckets without billing (e.g. fleet or system events) fall back to records/s.
+- **EVENTS** covers events, bizevents, system, security, sdlc and Davis events. Smartscape, user
+  events and user sessions are not shown.
+- More than 15 sources are folded into "Other". Configured forwarding targets without metric
+  data are shown dashed.
+
+State is stored in **app state** (shared by all users of the app on the tenant):
+`rate-card`, `baselines`, `extrapolation-inputs`.
+
+## Rate card defaults
+
+List prices in USD from the [Dynatrace rate card](https://www.dynatrace.com/pricing/rate-card/),
+read 2026-11-13. Other currencies use the rates on
+[local currency pricing](https://www.dynatrace.com/pricing/currency-conversion/).
+
+| Signal | Ingest & Process | Retain | Included retention |
+|---|---|---|---|
+| Logs | $0.20 / GiB | $0.0007 / GiB-day | 0 days (Pay-per-Query) |
+| Traces | $0.20 / GiB | $0.0007 / GiB-day | 10 days |
+| Metrics | $0.15 / 100k data points | not modelled | 15 months |
+| Events | $0.20 / GiB | $0.0007 / GiB-day | 0 days (not published) |
+
+Signal breakdowns use the list query price of $0.0035 per GiB scanned for the scan estimate.
+Contracts are usually discounted; enter your own prices in **Settings**. Until you do, cost
+figures carry an "estimate, list price" chip.
+
+## Required scopes
+
+Declared in [`app.config.json`](app.config.json). Users also need matching IAM permissions.
+
+| Scope | Used for |
+|---|---|
+| `storage:system:read` | Billing usage events (all volume and cost figures) |
+| `storage:buckets:read` | Bucket retention |
+| `storage:smartscape:read` | Entity driver counts |
+| `storage:logs:read` | Log breakdown |
+| `storage:spans:read` | Trace breakdown |
+| `storage:metrics:read` | Metric key breakdown |
+| `storage:events:read` | Event provider breakdown |
+| `state:app-states:read` / `state:app-states:write` | Rate card, baselines, inputs |
+| `settings:objects:read` | OpenPipeline routing, pipelines, ingest sources and forwarding (Flow names and details) |
+
+When a query is denied, that tile shows which scope is missing; the rest of the app still works.
+Without `settings:objects:read` the Flow page still draws from metrics, with raw route and
+pipeline ids.
+
+## Develop
+
+Requires Node 24 (`.nvmrc`). With Homebrew: `brew install node@24` and put
+`/opt/homebrew/opt/node@24/bin` first on your `PATH`.
+
+```bash
+npm install
+npm run start        # dev server against the tenant in app.config.json
+npm run lint
+npm run test
+npm run build
+```
+
+Check every query against a tenant with dtctl (it never changes your current dtctl context):
+
+```bash
+scripts/validate-queries.sh --context sprint
+```
+
+`--save-fixtures ui/app/queries/__fixtures__` refreshes the test fixtures. Anonymise host names
+before you commit them.
+
+## Deploy to another tenant
+
+The tenant URL is only set in `app.config.json`. Override it per command, without editing the
+file:
+
+```bash
+DT_APP_ENVIRONMENT_URL=https://<tenant-id>.apps.dynatrace.com npx dt-app deploy
+```
+
+`npx dt-app deploy --environment-url <url>` works too. Deploy opens a browser for SSO login.
+To share the app with a customer, also change the app `id` in `app.config.json` if another
+version is already installed there.
+
+## Limitations
+
+- Metrics billing arrives about 4 hours late, so the last hours of a timeframe under-count metrics.
+- Logs and traces billing is split by bucket only. Finer splits come from tier-3 breakdowns,
+  which measure content length (logs) or counts (spans, events, series), not billed bytes.
+- Full-Stack Monitoring includes a trace and custom-metric allowance whose size isn't published,
+  so trace and metric costs can be overstated for Full-Stack hosts.
+- Retain cost on the Overview uses average stored bytes from Retain events × days × retain price.
+  The projection assumes steady state.
+- Query (scan) costs are only estimated for breakdowns; they aren't part of the projection.
+- Driver counts come from Smartscape at query time, not over the timeframe; host counts also
+  use billed hosts and take the larger value.
+- Flow throughput comes from self-monitoring metrics, which can lag a few minutes; the 5m
+  window may under-count. Bytes on the Flow page are estimates (see above).
+- Flow pipeline → bucket edges are estimated when several pipelines in one configuration are
+  active and the metrics carry no `pipeline_id`.

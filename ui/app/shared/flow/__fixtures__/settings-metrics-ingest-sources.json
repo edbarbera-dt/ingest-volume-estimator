@@ -1,0 +1,30 @@
+[
+ {
+  "objectId": "vu9U3hXa3q0AAAABACtidWlsdGluOm9wZW5waXBlbGluZS5tZXRyaWNzLmluZ2VzdC1zb3VyY2VzAAZ0ZW5hbnQABnRlbmFudAAkNDFmM2JjZTMtZGYyYS0zZmNhLTg4MDQtYzI3NWU1MDZjNDkyvu9U3hXa3q0",
+  "schemaId": "builtin:openpipeline.metrics.ingest-sources",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "externalId": "com.dynatrace.custom.python-certificate-monitor_com.dynatrace.custom.python-certificate-monitor",
+  "summary": "SSL Certificate Monitor Source - ",
+  "value": {
+   "displayName": "SSL Certificate Monitor Source",
+   "enabled": true,
+   "metadataList": [
+    {
+     "entryKey": "extension_name",
+     "entryValue": "com.dynatrace.custom.python-certificate-monitor"
+    },
+    {
+     "entryKey": "extension_version",
+     "entryValue": "2.3.2"
+    }
+   ],
+   "source": "com.dynatrace.custom.python-certificate-monitor",
+   "sourceType": "extension",
+   "staticRouting": {
+    "pipelineId": "vu9U3hXa3q0AAAABACZidWlsdGluOm9wZW5waXBlbGluZS5tZXRyaWNzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDQzODQ4MmZlLTI5NGYtM2EyNy05NjQ4LTQzNGRlYzM0NzkxNr7vVN4V2t6t",
+    "pipelineType": "custom"
+   }
+  }
+ }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "avg_bytes": 25597205.73809524,
+    "event.type": "Events - Retain",
+    "usage.bucket": "default_bizevents"
+  },
+  {
+    "avg_bytes": 8388608,
+    "event.type": "Files - Retain"
+  },
+  {
+    "avg_bytes": 597631973923.238,
+    "event.type": "Log Management & Analytics - Retain",
+    "usage.bucket": "default_logs"
+  }
+]

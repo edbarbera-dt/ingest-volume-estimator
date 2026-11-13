@@ -1,0 +1,14 @@
+[
+  {
+    "n": "15",
+    "type": "CONTAINER"
+  },
+  {
+    "n": "3",
+    "type": "HOST"
+  },
+  {
+    "n": "11",
+    "type": "SERVICE"
+  }
+]

@@ -1,0 +1,42 @@
+[
+ {
+  "display_name": "Business events",
+  "dt.system.table": "bizevents",
+  "estimated_uncompressed_bytes": "25393756",
+  "name": "default_bizevents",
+  "records": "50846",
+  "retention_days": "35"
+ },
+ {
+  "display_name": "Default events",
+  "dt.system.table": "events",
+  "estimated_uncompressed_bytes": "0",
+  "name": "default_events",
+  "records": "0",
+  "retention_days": "35"
+ },
+ {
+  "display_name": "Logs",
+  "dt.system.table": "logs",
+  "estimated_uncompressed_bytes": "234000286220",
+  "name": "default_logs",
+  "records": "146399619",
+  "retention_days": "35"
+ },
+ {
+  "display_name": "Default metrics",
+  "dt.system.table": "metrics",
+  "estimated_uncompressed_bytes": "1537020499823",
+  "name": "default_metrics",
+  "records": "1836478559",
+  "retention_days": "462"
+ },
+ {
+  "display_name": "Default spans",
+  "dt.system.table": "spans",
+  "estimated_uncompressed_bytes": "148475405504",
+  "name": "default_spans",
+  "records": "57612307",
+  "retention_days": "10"
+ }
+]

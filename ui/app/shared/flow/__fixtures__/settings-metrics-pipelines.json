@@ -1,0 +1,2291 @@
+[
+ {
+  "objectId": "vu9U3hXa3q0AAAABACZidWlsdGluOm9wZW5waXBlbGluZS5tZXRyaWNzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDE0OWE0YjI2LWExMDAtMzA1Zi04ZDNlLTQ5Njk1NWZjYmI2M77vVN4V2t6t",
+  "schemaId": "builtin:openpipeline.metrics.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "externalId": "com.dynatrace.extension.opentelemetry_extension.opentelemetry-metrics",
+  "summary": "OpenTelemetry Host Monitoring",
+  "value": {
+   "customId": "extension.opentelemetry-metrics",
+   "displayName": "OpenTelemetry Host Monitoring",
+   "metadataList": [
+    {
+     "entryKey": "extension_name",
+     "entryValue": "com.dynatrace.extension.opentelemetry"
+    },
+    {
+     "entryKey": "extension_version",
+     "entryValue": "4.0.1"
+    }
+   ],
+   "smartscapeNodeExtraction": {
+    "processors": [
+     {
+      "description": "Extract node for OpenTelemetry Host",
+      "enabled": true,
+      "id": "OTEL_HOST_host_metrics_extraction",
+      "matcher": "matchesValue(metric.key, {\"system.*\", \"process.*\"}) AND isNotNull(host.id)",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.otel:host"
+        },
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        },
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "os.type",
+         "referencedFieldName": "os.type"
+        },
+        {
+         "fieldName": "os.name",
+         "referencedFieldName": "os.name"
+        },
+        {
+         "fieldName": "os.version",
+         "referencedFieldName": "os.version"
+        },
+        {
+         "fieldName": "os.description",
+         "referencedFieldName": "os.description"
+        },
+        {
+         "fieldName": "os.build.id",
+         "referencedFieldName": "os.build.id"
+        },
+        {
+         "fieldName": "host.id",
+         "referencedFieldName": "host.id"
+        },
+        {
+         "fieldName": "host.arch",
+         "referencedFieldName": "host.arch"
+        },
+        {
+         "fieldName": "host.cpu.model.name",
+         "referencedFieldName": "host.cpu.model.name"
+        },
+        {
+         "fieldName": "host.ip",
+         "referencedFieldName": "host.ip"
+        },
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "host.id",
+         "referencedFieldName": "host.id"
+        },
+        {
+         "idComponent": "host.name",
+         "referencedFieldName": "host.name"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.otel_host",
+       "nodeName": {
+        "field": {
+         "defaultValue": "OTEL_HOST",
+         "sourceFieldName": "host.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "OTEL_HOST",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Extract node for OpenTelemetry Process",
+      "enabled": true,
+      "id": "OTEL_PROCESS_process_extraction",
+      "matcher": "matchesValue(metric.key, \"process.*\") AND isNotNull(process.executable.name) AND isNotNull(host.id)",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.otel:process"
+        },
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        },
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "process.command_line",
+         "referencedFieldName": "process.command_line"
+        },
+        {
+         "fieldName": "process.pid",
+         "referencedFieldName": "process.pid"
+        },
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "host.id",
+         "referencedFieldName": "host.id"
+        },
+        {
+         "idComponent": "host.name",
+         "referencedFieldName": "host.name"
+        },
+        {
+         "idComponent": "process.executable.name",
+         "referencedFieldName": "process.executable.name"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.otel_process",
+       "nodeName": {
+        "field": {
+         "defaultValue": "OTEL_PROCESS",
+         "sourceFieldName": "process.executable.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "OTEL_PROCESS",
+       "staticEdgesToExtract": [
+        {
+         "edgeType": "runs_on",
+         "targetIdFieldName": "dt.smartscape.otel_host",
+         "targetType": "OTEL_HOST"
+        }
+       ]
+      },
+      "type": "smartscapeNode"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "objectId": "vu9U3hXa3q0AAAABACZidWlsdGluOm9wZW5waXBlbGluZS5tZXRyaWNzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDQzODQ4MmZlLTI5NGYtM2EyNy05NjQ4LTQzNGRlYzM0NzkxNr7vVN4V2t6t",
+  "schemaId": "builtin:openpipeline.metrics.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "externalId": "com.dynatrace.custom.python-certificate-monitor_extension:python-certificate-monitor",
+  "summary": "SSL Certificate Monitor Pipeline",
+  "value": {
+   "customId": "extension:python-certificate-monitor",
+   "displayName": "SSL Certificate Monitor Pipeline",
+   "metadataList": [
+    {
+     "entryKey": "extension_name",
+     "entryValue": "com.dynatrace.custom.python-certificate-monitor"
+    },
+    {
+     "entryKey": "extension_version",
+     "entryValue": "2.3.2"
+    }
+   ],
+   "processing": {
+    "processors": [
+     {
+      "description": "Reshaping of certificate.monitor.status fields for smartscape node extraction",
+      "dql": {
+       "script": "fieldsAdd troubleshooting.upsert_source=concat(\"extension:python-certificate-monitor|\", metric.key), certificate.monitor.name=if(isNotNull(host.name), concat(\"Certificate Monitor on \", host.name), else: concat(\"ActiveGate certificate monitor - \", monitoring_config)), certificate.node.name=concat(subject_common_name, \" on \", if(isNotNull(port), port, else: host.name)), subject_alternative_names=concat(if(isNotNull(subject_alt_name_1), subject_alt_name_1, else: \"\"), if(isNotNull(subject_alt_name_2), concat(\", \", subject_alt_name_2)), if(isNotNull(subject_alt_name_3), concat(\", \", subject_alt_name_3)), if(isNotNull(subject_alt_name_4), concat(\", \", subject_alt_name_4)), if(isNotNull(subject_alt_name_5), concat(\", \", subject_alt_name_5)), if(isNotNull(subject_alt_name_6), concat(\", \", subject_alt_name_6)), if(isNotNull(subject_alt_name_7), concat(\", \", subject_alt_name_7)), if(isNotNull(subject_alt_name_8), concat(\", \", subject_alt_name_8)), if(isNotNull(subject_alt_name_9), concat(\", \", subject_alt_name_9)), if(isNotNull(subject_alt_name_10), concat(\", \", subject_alt_name_10)), if(isNotNull(subject_alt_name_11), concat(\", \", subject_alt_name_11)))"
+      },
+      "enabled": true,
+      "id": "reshape-certificate-monitor-attributes",
+      "matcher": "metric.key == \"certificate.monitor.status\"",
+      "type": "dql"
+     }
+    ]
+   },
+   "smartscapeEdgeExtraction": {
+    "processors": [
+     {
+      "description": "Create belongs_to relationship from CERTIFICATE to CERTIFICATE_MONITOR",
+      "enabled": true,
+      "id": "CERTIFICATE_belongs_to_CERTIFICATE_MONITOR",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\")",
+      "smartscapeEdge": {
+       "edgeType": "belongs_to",
+       "sourceIdFieldName": "dt.smartscape.certificate",
+       "sourceType": "CERTIFICATE",
+       "targetIdFieldName": "dt.smartscape.certificate_monitor",
+       "targetType": "CERTIFICATE_MONITOR"
+      },
+      "type": "smartscapeEdge"
+     },
+     {
+      "description": "Create calls relationship from CERTIFICATE to PROCESS",
+      "enabled": true,
+      "id": "CERTIFICATE_calls_PROCESS",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\")",
+      "smartscapeEdge": {
+       "edgeType": "calls",
+       "sourceIdFieldName": "dt.smartscape.certificate",
+       "sourceType": "CERTIFICATE",
+       "targetIdFieldName": "dt.smartscape.process",
+       "targetType": "PROCESS"
+      },
+      "type": "smartscapeEdge"
+     }
+    ]
+   },
+   "smartscapeNodeExtraction": {
+    "processors": [
+     {
+      "description": "Extract node for Certificate monitor (OneAgent, WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_oneagent",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, {\"OneAgent\", \"WCS\"})",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "host_att",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "fieldName": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        },
+        {
+         "fieldName": "troubleshooting.upsert_source",
+         "referencedFieldName": "troubleshooting.upsert_source"
+        },
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.python:certificate_monitor"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": [
+        {
+         "edgeType": "runs_on",
+         "targetIdFieldName": "dt.smartscape.host",
+         "targetType": "HOST"
+        }
+       ]
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AWS fields for Certificate monitor (OneAgent, WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_oneagent-aws",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, {\"OneAgent\", \"WCS\"}) and (isNotNull(aws.account.id) or isNotNull(aws.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AZURE fields for Certificate monitor (OneAgent, WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_oneagent-azure",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, {\"OneAgent\", \"WCS\"}) and (isNotNull(azure.subscription) or isNotNull(azure.location) or isNotNull(azure.resource.group))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with GCP fields for Certificate monitor (OneAgent, WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_oneagent-gcp",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, {\"OneAgent\", \"WCS\"}) and (isNotNull(gcp.project.id) or isNotNull(gcp.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for Certificate monitor (OneAgent, WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_metrics_oneagent",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, {\"OneAgent\", \"WCS\"})",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeType": "CERTIFICATE_MONITOR"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Extract node for Certificate monitor (remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_remote",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"Domain\")",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "host_att",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "fieldName": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        },
+        {
+         "fieldName": "troubleshooting.upsert_source",
+         "referencedFieldName": "troubleshooting.upsert_source"
+        },
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.python:certificate_monitor"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AWS fields for Certificate monitor (remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_remote-aws",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"Domain\") and (isNotNull(aws.account.id) or isNotNull(aws.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AZURE fields for Certificate monitor (remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_remote-azure",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"Domain\") and (isNotNull(azure.subscription) or isNotNull(azure.location) or isNotNull(azure.resource.group))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with GCP fields for Certificate monitor (remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_remote-gcp",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"Domain\") and (isNotNull(gcp.project.id) or isNotNull(gcp.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for Certificate monitor (remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_metrics_remote",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"Domain\")",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeType": "CERTIFICATE_MONITOR"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Extract node for Certificate monitor (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_external",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"External\")",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "host_att",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "fieldName": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        },
+        {
+         "fieldName": "troubleshooting.upsert_source",
+         "referencedFieldName": "troubleshooting.upsert_source"
+        },
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.python:certificate_monitor"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AWS fields for Certificate monitor (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_external-aws-2",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"External\") and (isNotNull(aws.account.id) or isNotNull(aws.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AZURE fields for Certificate monitor (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_external-azure",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"External\") and (isNotNull(azure.subscription) or isNotNull(azure.location) or isNotNull(azure.resource.group))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with GCP fields for Certificate monitor (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_u_node_external-gcp",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"External\") and (isNotNull(gcp.project.id) or isNotNull(gcp.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE_MONITOR",
+         "sourceFieldName": "certificate.monitor.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE_MONITOR",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for Certificate monitor (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_MONITOR_metrics_external",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND matchesValue(source, \"External\")",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate_monitor",
+       "nodeType": "CERTIFICATE_MONITOR"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Extract node for Certificate (OneAgent)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_oneagent",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(port) AND isNotNull(validity_not_after) AND matchesValue(source, \"OneAgent\") ",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "host_att",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "fieldName": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        },
+        {
+         "fieldName": "source",
+         "referencedFieldName": "source"
+        },
+        {
+         "fieldName": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "fieldName": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "fieldName": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "fieldName": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "fieldName": "validity_not_before",
+         "referencedFieldName": "validity_not_before"
+        },
+        {
+         "fieldName": "cert_store",
+         "referencedFieldName": "cert_store"
+        },
+        {
+         "fieldName": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "fieldName": "subject_alternative_names",
+         "referencedFieldName": "subject_alternative_names"
+        },
+        {
+         "fieldName": "tls",
+         "referencedFieldName": "tls"
+        },
+        {
+         "fieldName": "self_signed",
+         "referencedFieldName": "self_signed"
+        },
+        {
+         "fieldName": "device_address",
+         "referencedFieldName": "device.address"
+        },
+        {
+         "fieldName": "issuer_common_name",
+         "referencedFieldName": "issuer_common_name"
+        },
+        {
+         "fieldName": "issuer_country",
+         "referencedFieldName": "issuer_country"
+        },
+        {
+         "fieldName": "issuer_organization",
+         "referencedFieldName": "issuer_organization_name"
+        },
+        {
+         "fieldName": "certificate_lifecycle",
+         "referencedFieldName": "certificate_lifecycle"
+        },
+        {
+         "fieldName": "certificate_stage",
+         "referencedFieldName": "certificate_stage"
+        },
+        {
+         "fieldName": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "fieldName": "troubleshooting.upsert_source",
+         "referencedFieldName": "troubleshooting.upsert_source"
+        },
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.python:certificate_monitor_certificate"
+        },
+        {
+         "fieldName": "calculated_node_id",
+         "referencedFieldName": "calculated_node_id"
+        },
+        {
+         "fieldName": "dt_smartscape_process",
+         "referencedFieldName": "dt.smartscape.process"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": [
+        {
+         "edgeType": "runs_on",
+         "targetIdFieldName": "dt.smartscape.host",
+         "targetType": "HOST"
+        },
+        {
+         "edgeType": "calls",
+         "targetIdFieldName": "dt.smartscape.process",
+         "targetType": "PROCESS"
+        }
+       ]
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AWS fields for Certificate (OneAgent)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_oneagent-aws",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(port) AND isNotNull(validity_not_after) AND matchesValue(source, \"OneAgent\")  and (isNotNull(aws.account.id) or isNotNull(aws.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AZURE fields for Certificate (OneAgent)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_oneagent-azure",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(port) AND isNotNull(validity_not_after) AND matchesValue(source, \"OneAgent\")  and (isNotNull(azure.subscription) or isNotNull(azure.location) or isNotNull(azure.resource.group))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with GCP fields for Certificate (OneAgent)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_oneagent-gcp",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(port) AND isNotNull(validity_not_after) AND matchesValue(source, \"OneAgent\")  and (isNotNull(gcp.project.id) or isNotNull(gcp.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for Certificate (OneAgent)",
+      "enabled": true,
+      "id": "CERTIFICATE_entity_metrics_oneagent",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(port) AND isNotNull(validity_not_after) AND matchesValue(source, \"OneAgent\") ",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeType": "CERTIFICATE"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Extract node for Certificate (WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_wcs",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(sn) AND isNotNull(cert_store) AND matchesValue(source, \"WCS\") ",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "host_att",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "fieldName": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        },
+        {
+         "fieldName": "source",
+         "referencedFieldName": "source"
+        },
+        {
+         "fieldName": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "fieldName": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "fieldName": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "fieldName": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "fieldName": "validity_not_before",
+         "referencedFieldName": "validity_not_before"
+        },
+        {
+         "fieldName": "cert_store",
+         "referencedFieldName": "cert_store"
+        },
+        {
+         "fieldName": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "fieldName": "subject_alternative_names",
+         "referencedFieldName": "subject_alternative_names"
+        },
+        {
+         "fieldName": "tls",
+         "referencedFieldName": "tls"
+        },
+        {
+         "fieldName": "self_signed",
+         "referencedFieldName": "self_signed"
+        },
+        {
+         "fieldName": "device_address",
+         "referencedFieldName": "device.address"
+        },
+        {
+         "fieldName": "issuer_common_name",
+         "referencedFieldName": "issuer_common_name"
+        },
+        {
+         "fieldName": "issuer_country",
+         "referencedFieldName": "issuer_country"
+        },
+        {
+         "fieldName": "issuer_organization",
+         "referencedFieldName": "issuer_organization_name"
+        },
+        {
+         "fieldName": "certificate_lifecycle",
+         "referencedFieldName": "certificate_lifecycle"
+        },
+        {
+         "fieldName": "certificate_stage",
+         "referencedFieldName": "certificate_stage"
+        },
+        {
+         "fieldName": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "fieldName": "troubleshooting.upsert_source",
+         "referencedFieldName": "troubleshooting.upsert_source"
+        },
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.python:certificate_monitor_certificate"
+        },
+        {
+         "fieldName": "certificate",
+         "referencedFieldName": "dt.smartscape.certificate"
+        },
+        {
+         "fieldName": "calculated_node_id",
+         "referencedFieldName": "calculated_node_id"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "idComponent": "cert_store",
+         "referencedFieldName": "cert_store"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": [
+        {
+         "edgeType": "runs_on",
+         "targetIdFieldName": "dt.smartscape.host",
+         "targetType": "HOST"
+        }
+       ]
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AWS fields for Certificate (WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_wcs-aws",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(sn) AND isNotNull(cert_store) AND matchesValue(source, \"WCS\")  and (isNotNull(aws.account.id) or isNotNull(aws.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "idComponent": "cert_store",
+         "referencedFieldName": "cert_store"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AZURE fields for Certificate (WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_wcs-azure",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(sn) AND isNotNull(cert_store) AND matchesValue(source, \"WCS\")  and (isNotNull(azure.subscription) or isNotNull(azure.location) or isNotNull(azure.resource.group))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "idComponent": "cert_store",
+         "referencedFieldName": "cert_store"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with GCP fields for Certificate (WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_wcs-gcp",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(sn) AND isNotNull(cert_store) AND matchesValue(source, \"WCS\")  and (isNotNull(gcp.project.id) or isNotNull(gcp.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "idComponent": "cert_store",
+         "referencedFieldName": "cert_store"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for Certificate (WCS)",
+      "enabled": true,
+      "id": "CERTIFICATE_entity_metrics_wcs",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(sn) AND isNotNull(cert_store) AND matchesValue(source, \"WCS\") ",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "dt_smartscape_host",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "idComponent": "cert_store",
+         "referencedFieldName": "cert_store"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeType": "CERTIFICATE"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Extract node for Certificate (Remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_remote",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(host_port) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"Domain\") ",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "host_att",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "fieldName": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        },
+        {
+         "fieldName": "source",
+         "referencedFieldName": "source"
+        },
+        {
+         "fieldName": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "fieldName": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "fieldName": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "fieldName": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "fieldName": "validity_not_before",
+         "referencedFieldName": "validity_not_before"
+        },
+        {
+         "fieldName": "cert_store",
+         "referencedFieldName": "cert_store"
+        },
+        {
+         "fieldName": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "fieldName": "subject_alternative_names",
+         "referencedFieldName": "subject_alternative_names"
+        },
+        {
+         "fieldName": "tls",
+         "referencedFieldName": "tls"
+        },
+        {
+         "fieldName": "self_signed",
+         "referencedFieldName": "self_signed"
+        },
+        {
+         "fieldName": "device_address",
+         "referencedFieldName": "device.address"
+        },
+        {
+         "fieldName": "issuer_common_name",
+         "referencedFieldName": "issuer_common_name"
+        },
+        {
+         "fieldName": "issuer_country",
+         "referencedFieldName": "issuer_country"
+        },
+        {
+         "fieldName": "issuer_organization",
+         "referencedFieldName": "issuer_organization_name"
+        },
+        {
+         "fieldName": "certificate_lifecycle",
+         "referencedFieldName": "certificate_lifecycle"
+        },
+        {
+         "fieldName": "certificate_stage",
+         "referencedFieldName": "certificate_stage"
+        },
+        {
+         "fieldName": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "fieldName": "troubleshooting.upsert_source",
+         "referencedFieldName": "troubleshooting.upsert_source"
+        },
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.python:certificate_monitor_certificate"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AWS fields for Certificate (Remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_remote-aws",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(host_port) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"Domain\")  and (isNotNull(aws.account.id) or isNotNull(aws.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AZURE fields for Certificate (Remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_remote-azure",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(host_port) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"Domain\")  and (isNotNull(azure.subscription) or isNotNull(azure.location) or isNotNull(azure.resource.group))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with GCP fields for Certificate (Remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_remote-gcp",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(host_port) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"Domain\")  and (isNotNull(gcp.project.id) or isNotNull(gcp.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for Certificate (Remote)",
+      "enabled": true,
+      "id": "CERTIFICATE_entity_metrics_remote",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(host_port) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"Domain\") ",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "host_port",
+         "referencedFieldName": "host_port"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeType": "CERTIFICATE"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Extract node for Certificate (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_external",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(file_name) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"External\") ",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "dt.security_context",
+         "referencedFieldName": "dt.security_context"
+        },
+        {
+         "fieldName": "dt.cost.product",
+         "referencedFieldName": "dt.cost.product"
+        },
+        {
+         "fieldName": "dt.cost.costcenter",
+         "referencedFieldName": "dt.cost.costcenter"
+        },
+        {
+         "fieldName": "dt.host_group.id",
+         "referencedFieldName": "dt.host_group.id"
+        },
+        {
+         "fieldName": "k8s.cluster.name",
+         "referencedFieldName": "k8s.cluster.name"
+        },
+        {
+         "fieldName": "k8s.namespace.name",
+         "referencedFieldName": "k8s.namespace.name"
+        },
+        {
+         "fieldName": "host_att",
+         "referencedFieldName": "dt.smartscape.host"
+        },
+        {
+         "fieldName": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        },
+        {
+         "fieldName": "source",
+         "referencedFieldName": "source"
+        },
+        {
+         "fieldName": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "fieldName": "port",
+         "referencedFieldName": "port"
+        },
+        {
+         "fieldName": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "fieldName": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "fieldName": "validity_not_before",
+         "referencedFieldName": "validity_not_before"
+        },
+        {
+         "fieldName": "cert_store",
+         "referencedFieldName": "cert_store"
+        },
+        {
+         "fieldName": "serial_number",
+         "referencedFieldName": "sn"
+        },
+        {
+         "fieldName": "subject_alternative_names",
+         "referencedFieldName": "subject_alternative_names"
+        },
+        {
+         "fieldName": "tls",
+         "referencedFieldName": "tls"
+        },
+        {
+         "fieldName": "self_signed",
+         "referencedFieldName": "self_signed"
+        },
+        {
+         "fieldName": "troubleshooting.upsert_source",
+         "referencedFieldName": "troubleshooting.upsert_source"
+        },
+        {
+         "fieldName": "id_classic",
+         "referencedFieldName": "dt.entity.python:certificate_monitor_certificate"
+        },
+        {
+         "referencedFieldName": "primary_tags.",
+         "strategy": "startsWith"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AWS fields for Certificate (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_external-aws",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(file_name) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"External\")  and (isNotNull(aws.account.id) or isNotNull(aws.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "aws.account.id",
+         "referencedFieldName": "aws.account.id"
+        },
+        {
+         "fieldName": "aws.region",
+         "referencedFieldName": "aws.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with AZURE fields for Certificate (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_external-azure",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(file_name) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"External\")  and (isNotNull(azure.subscription) or isNotNull(azure.location) or isNotNull(azure.resource.group))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "azure.location",
+         "referencedFieldName": "azure.location"
+        },
+        {
+         "fieldName": "azure.resource.group",
+         "referencedFieldName": "azure.resource.group"
+        },
+        {
+         "fieldName": "azure.subscription",
+         "referencedFieldName": "azure.subscription"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Enrich node with GCP fields for Certificate (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_u_node_external-gcp",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(file_name) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"External\")  and (isNotNull(gcp.project.id) or isNotNull(gcp.region))",
+      "smartscapeNode": {
+       "extractNode": true,
+       "fieldsToExtract": [
+        {
+         "fieldName": "gcp.project.id",
+         "referencedFieldName": "gcp.project.id"
+        },
+        {
+         "fieldName": "gcp.region",
+         "referencedFieldName": "gcp.region"
+        }
+       ],
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeName": {
+        "field": {
+         "defaultValue": "CERTIFICATE",
+         "sourceFieldName": "certificate.node.name"
+        },
+        "type": "field"
+       },
+       "nodeType": "CERTIFICATE",
+       "staticEdgesToExtract": []
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for Certificate (External)",
+      "enabled": true,
+      "id": "CERTIFICATE_entity_metrics_external",
+      "matcher": "matchesValue(metric.key, \"certificate.monitor.status\") AND isNotNull(subject_common_name) AND isNotNull(file_name) AND isNotNull(validity_not_after) AND isNotNull(monitoring_config) AND matchesValue(source, \"External\") ",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "subject_common_name",
+         "referencedFieldName": "subject_common_name"
+        },
+        {
+         "idComponent": "file_name",
+         "referencedFieldName": "file_name"
+        },
+        {
+         "idComponent": "validity_not_after",
+         "referencedFieldName": "validity_not_after"
+        },
+        {
+         "idComponent": "monitoring_config",
+         "referencedFieldName": "monitoring_config"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.certificate",
+       "nodeType": "CERTIFICATE"
+      },
+      "type": "smartscapeNode"
+     }
+    ]
+   }
+  }
+ }
+]

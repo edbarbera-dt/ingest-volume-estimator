@@ -1,0 +1,52 @@
+{
+  "$schema": "./.dt-app/app.config.schema.json",
+  "environmentUrl": "https://rkj7350h.sprint.apps.dynatracelabs.com/",
+  "app": {
+    "name": "Ingest Volume Estimator",
+    "version": "0.2.0",
+    "description": "Estimate log, metric, trace and event ingest volume and cost at production scale",
+    "id": "my.ingest.volume.estimator",
+    "scopes": [
+      {
+        "name": "storage:system:read",
+        "comment": "Billing usage events (dt.system.events)"
+      },
+      {
+        "name": "storage:buckets:read",
+        "comment": "Bucket retention (dt.system.buckets)"
+      },
+      {
+        "name": "storage:events:read",
+        "comment": "Event breakdown"
+      },
+      {
+        "name": "storage:logs:read",
+        "comment": "Log breakdown"
+      },
+      {
+        "name": "storage:spans:read",
+        "comment": "Trace breakdown"
+      },
+      {
+        "name": "storage:metrics:read",
+        "comment": "Metric breakdown"
+      },
+      {
+        "name": "storage:smartscape:read",
+        "comment": "Entity driver counts (smartscapeNodes)"
+      },
+      {
+        "name": "state:app-states:read",
+        "comment": "Read rate card, baselines and inputs"
+      },
+      {
+        "name": "state:app-states:write",
+        "comment": "Save rate card, baselines and inputs"
+      },
+      {
+        "name": "settings:objects:read",
+        "comment": "OpenPipeline routing, pipelines, ingest sources and forwarding (Flow page)"
+      }
+    ]
+  }
+}

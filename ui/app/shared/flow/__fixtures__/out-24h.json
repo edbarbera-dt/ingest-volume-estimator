@@ -1,0 +1,42 @@
+[
+  {
+    "bucket_name": "default_bizevents",
+    "configuration": "bizevents",
+    "r": 1472
+  },
+  {
+    "bucket_name": "default_davis_events",
+    "configuration": "davis.events",
+    "r": 8
+  },
+  {
+    "bucket_name": "default_fleet_events",
+    "configuration": "events",
+    "r": 3912
+  },
+  {
+    "bucket_name": "default_logs",
+    "configuration": "logs",
+    "r": 3907743
+  },
+  {
+    "bucket_name": "default_metrics",
+    "configuration": "metrics",
+    "r": 3082643
+  },
+  {
+    "bucket_name": "<NoBucket>",
+    "configuration": "smartscape.events",
+    "r": 141494
+  },
+  {
+    "bucket_name": "default_spans",
+    "configuration": "spans",
+    "r": 5591127
+  },
+  {
+    "bucket_name": "dt_system_events",
+    "configuration": "system.events",
+    "r": 13116
+  }
+]

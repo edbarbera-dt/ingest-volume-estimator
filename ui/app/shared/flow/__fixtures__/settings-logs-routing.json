@@ -1,0 +1,47 @@
+[
+ {
+  "objectId": "vu9U3hXa3q0AAAABACFidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnJvdXRpbmcABnRlbmFudAAGdGVuYW50ACQ5ODhlYTFmZi0yNzg0LTMxZGMtYmM3Ni1jMTMxOTBjNWUyN2G-71TeFdrerQ",
+  "schemaId": "builtin:openpipeline.logs.routing",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "value": {
+   "routingEntries": [
+    {
+     "description": "AstroShop PaymentService",
+     "enabled": true,
+     "matcher": "matchesValue(k8s.namespace.name,\"astroshop\") and matchesValue(k8s.container.name,\"paymentservice\")",
+     "pipelineId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDNmMzU5ZjhmLWJlOGUtMzczOC04MWM0LWYzNDQyNDZjMzg3Zb7vVN4V2t6t",
+     "pipelineType": "custom"
+    },
+    {
+     "description": "Astronomy Shop OpenTelemetry Logs",
+     "enabled": true,
+     "matcher": "matchesValue(k8s.namespace.name,\"astronomy-shop\") and matchesValue(telemetry.sdk.name,\"opentelemetry\") and isNull(event.domain)",
+     "pipelineId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDc5Y2YwM2RjLWI3NDctM2QyNi1hNDljLTk3ZGQ0ODlmYzJkMr7vVN4V2t6t",
+     "pipelineType": "custom"
+    },
+    {
+     "description": "Credit Card Order Logs",
+     "enabled": true,
+     "matcher": "matchesValue(k8s.container.name, \"frontendreverseproxy\") and matchesPhrase(content, \"credit-card-order-service\") and matchesPhrase(content, \"instruments\")",
+     "pipelineId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJGRkYWY4YTRhLWI0YjYtM2U3Ni1hNjg1LTFkNTM4MzZmZDFhZr7vVN4V2t6t",
+     "pipelineType": "custom"
+    },
+    {
+     "description": "Test Logs",
+     "enabled": true,
+     "matcher": "log.source == \"/home/ubuntu/python-log/logs/test-app.log\"",
+     "pipelineId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDc4ZTBiOWJiLThhMzktM2Y5Yi1hMGJlLTkxZWE0YzAyMjQ2Nb7vVN4V2t6t",
+     "pipelineType": "custom"
+    },
+    {
+     "description": "OpenTelemetry Host Monitoring",
+     "enabled": true,
+     "matcher": "isNotNull(host.id) AND isNotNull(host.name) AND matchesValue(dt.openpipeline.source, \"/api/v2/otlp/v1/logs\")",
+     "pipelineId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJGEyYWVkMGI3LWM5MDEtM2RmMC1hN2U2LWVhMWU5Yzk0YjRlM77vVN4V2t6t",
+     "pipelineType": "custom"
+    }
+   ]
+  }
+ }
+]

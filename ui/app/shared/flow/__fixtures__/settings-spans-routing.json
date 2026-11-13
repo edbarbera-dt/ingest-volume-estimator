@@ -1,0 +1,19 @@
+[
+ {
+  "objectId": "vu9U3hXa3q0AAAABACJidWlsdGluOm9wZW5waXBlbGluZS5zcGFucy5yb3V0aW5nAAZ0ZW5hbnQABnRlbmFudAAkNWIyOGY3ZjQtOTNlMC0zZGY1LTllYWQtNGY3ODQzNDcwMzEwvu9U3hXa3q0",
+  "schemaId": "builtin:openpipeline.spans.routing",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "value": {
+   "routingEntries": [
+    {
+     "description": "OpenTelemetry Host Monitoring",
+     "enabled": true,
+     "matcher": "isNotNull(host.id) AND isNotNull(host.name) AND matchesValue(telemetry.sdk.name, {\"opentelemetry\", \"odin\", \"otel\"})",
+     "pipelineId": "vu9U3hXa3q0AAAABACRidWlsdGluOm9wZW5waXBlbGluZS5zcGFucy5waXBlbGluZXMABnRlbmFudAAGdGVuYW50ACQwYzY2YTdhOC1lMzI4LTM4MDItODY0NS1iMThjOWMyYmExOTi-71TeFdrerQ",
+     "pipelineType": "custom"
+    }
+   ]
+  }
+ }
+]

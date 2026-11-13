@@ -1,0 +1,18 @@
+[
+  {
+    "key": "FLEET_ONEAGENT_WORKER",
+    "value": "4007"
+  },
+  {
+    "key": "(none)",
+    "value": "1731"
+  },
+  {
+    "key": "ONEAGENT",
+    "value": "10"
+  },
+  {
+    "key": "ACTIVEGATE_WORKERS",
+    "value": "3"
+  }
+]

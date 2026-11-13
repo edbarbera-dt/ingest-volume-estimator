@@ -1,0 +1,30 @@
+[
+  {
+    "bytes": 2980900,
+    "dp": 0,
+    "event.type": "Events - Ingest & Process",
+    "spans": 0,
+    "usage.bucket": "default_bizevents"
+  },
+  {
+    "bytes": 5295355750,
+    "dp": 0,
+    "event.type": "Log Management & Analytics - Ingest & Process",
+    "spans": 0,
+    "usage.bucket": "default_logs"
+  },
+  {
+    "bytes": 0,
+    "dp": 2198476,
+    "event.type": "Metrics - Ingest & Process",
+    "spans": 0,
+    "usage.bucket": "default_metrics"
+  },
+  {
+    "bytes": 62686493400,
+    "dp": 0,
+    "event.type": "Traces - Ingest & Process",
+    "spans": 40137505,
+    "usage.bucket": "default_spans"
+  }
+]

@@ -1,0 +1,643 @@
+[
+ {
+  "objectId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDNmMzU5ZjhmLWJlOGUtMzczOC04MWM0LWYzNDQyNDZjMzg3Zb7vVN4V2t6t",
+  "schemaId": "builtin:openpipeline.logs.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "summary": "AstroShop PaymentService",
+  "value": {
+   "costAllocation": {
+    "processors": []
+   },
+   "customId": "pipeline_AstroShop_PaymentService_7673",
+   "dataExtraction": {
+    "processors": [
+     {
+      "bizevent": {
+       "eventProvider": {
+        "field": {
+         "sourceFieldName": "astroshop"
+        },
+        "type": "field"
+       },
+       "eventType": {
+        "field": {
+         "sourceFieldName": "astroshop.paymentservice.transaction.complete"
+        },
+        "type": "field"
+       },
+       "fieldExtraction": {
+        "type": "includeAll"
+       }
+      },
+      "description": "PaymentService Transaction",
+      "enabled": true,
+      "id": "processor_PaymentService_Transaction_2896",
+      "matcher": "matchesValue(content,\"Transaction complete.\") and isNotNull(payment.amount) and isNotNull(payment.transactionid)",
+      "type": "bizevent"
+     }
+    ]
+   },
+   "davis": {
+    "processors": [
+     {
+      "davis": {
+       "properties": [
+        {
+         "key": "event.type",
+         "value": "ERROR_EVENT"
+        },
+        {
+         "key": "event.name",
+         "value": "PaymentService Fail Feature Flag Enabled\n"
+        },
+        {
+         "key": "event.description",
+         "value": "Generate an error when calling the charge method."
+        },
+        {
+         "key": "dt.davis.is_rootcause_relevant\t",
+         "value": "true"
+        },
+        {
+         "key": "dt.davis.is_merging_allowed\t",
+         "value": "true"
+        },
+        {
+         "key": "dt.source_entity\t",
+         "value": "{dt.entity.cloud_application}"
+        }
+       ]
+      },
+      "description": "PaymentService Fail Feature Flag Enabled",
+      "enabled": true,
+      "id": "processor_PaymentService_Fail_Feature_Flag_Enabled_8013",
+      "matcher": "matchesValue(status,\"WARN\") and matchesValue(message,\"PaymentService Fail Feature Flag Enabled\") and isNotNull(dt.entity.cloud_application)",
+      "type": "davis"
+     }
+    ]
+   },
+   "displayName": "AstroShop PaymentService",
+   "metadataList": [],
+   "metricExtraction": {
+    "processors": [
+     {
+      "counterMetric": {
+       "dimensions": [
+        {
+         "extractionType": "field",
+         "sourceFieldName": "k8s.namespace.name"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "k8s.workload.name"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "dt.entity.process_group"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "dt.entity.cloud_application"
+        }
+       ],
+       "metricKey": "log.astroshop.paymentservice.failure"
+      },
+      "description": "PaymentService Failure",
+      "enabled": true,
+      "id": "processor_PaymentService_Failure_3821",
+      "matcher": "matchesValue(status,\"WARN\") and matchesValue(message,\"PaymentService Fail Feature Flag Enabled\") and isNotNull(dt.entity.cloud_application)",
+      "type": "counterMetric"
+     },
+     {
+      "description": "PaymentService Transaction",
+      "enabled": true,
+      "id": "processor_PaymentService_Transaction_3987",
+      "matcher": "matchesValue(k8s.container.name,\"paymentservice\") and isNotNull(app.payment.cardType) and isNotNull(app.payment.amount) and isNotNull(app.payment.currencyCode) and isNotNull(app.payment.transactionId)",
+      "type": "valueMetric",
+      "valueMetric": {
+       "dimensions": [
+        {
+         "destinationFieldName": "cardType",
+         "extractionType": "field",
+         "sourceFieldName": "app.payment.cardType"
+        },
+        {
+         "destinationFieldName": "currencyCode",
+         "extractionType": "field",
+         "sourceFieldName": "app.payment.currencyCode"
+        }
+       ],
+       "field": "app.payment.amount",
+       "metricKey": "otel.astronomy-shop.app.payment.amount"
+      }
+     }
+    ]
+   },
+   "processing": {
+    "processors": [
+     {
+      "description": "node_js_001",
+      "enabled": true,
+      "id": "processor_NodeJS_5126",
+      "technology": {
+       "technologyId": "node_js_001"
+      },
+      "type": "technology"
+     },
+     {
+      "description": "Parse Content",
+      "dql": {
+       "script": "parse content, \"JSON:json_content\"\n| fieldsAdd content = json_content\n| fieldsFlatten content, depth: 3"
+      },
+      "enabled": true,
+      "id": "processor_Parse_Content_8949",
+      "matcher": "isNotNull(log.raw_level) and loglevel != \"NONE\" and isNotNull(message)",
+      "type": "dql"
+     },
+     {
+      "description": "Message to Content",
+      "dql": {
+       "script": "fieldsRemove content\n| fieldsAdd content = message"
+      },
+      "enabled": true,
+      "id": "processor_Message_to_Content_4052",
+      "matcher": "isNotNull(log.raw_level) and loglevel != \"NONE\" and isNotNull(message) and isNotNull(json_content)",
+      "type": "dql"
+     },
+     {
+      "description": "Transaction Fields",
+      "dql": {
+       "script": "fieldsAdd payment.amount = content.amount.units.low\n| fieldsAdd payment.transactionid = content.transactionId\n| fieldsAdd payment.currencycode = content.amount.currencyCode\n| fieldsAdd payment.cardtype = content.cardType\n| fieldsAdd payment.lastfourdigits = content.lastFourDigits"
+      },
+      "enabled": true,
+      "id": "processor_Transaction_Fields_6213",
+      "matcher": "matchesValue(content,\"Transaction complete.\") and isNotNull(content.amount.units.low) and isNotNull(content.transactionId)",
+      "type": "dql"
+     },
+     {
+      "description": "Mask Sensitive Data",
+      "dql": {
+       "script": "fieldsAdd maskedcreditcardnumber = hashMd5(content.request.creditCard.creditCardNumber)\n| fieldsRemove content.request.creditCard.creditCardNumber"
+      },
+      "enabled": true,
+      "id": "processor_Mask_Sensitive_Data_3061",
+      "matcher": "isNotNull(content.request.creditCard.creditCardNumber)",
+      "type": "dql"
+     },
+     {
+      "description": "Cleanup Fields",
+      "dql": {
+       "script": "fieldsRemove \"content.dt.*\", \"content.k8s.*\", \"content.time\",\"content.level\", \"content.process.technology\", \"content.hostname\", \"content.pid\"\n| fieldsRemove \"content.request.creditCard.*\"\n| fieldsRemove json_content"
+      },
+      "enabled": true,
+      "id": "processor_Cleanup_Fields_3928",
+      "matcher": "isNotNull(log.raw_level) and loglevel != \"NONE\" and isNotNull(message) and isNotNull(json_content) and isNotNull(content)",
+      "type": "dql"
+     }
+    ]
+   },
+   "productAllocation": {
+    "processors": []
+   },
+   "securityContext": {
+    "processors": []
+   },
+   "storage": {
+    "processors": [
+     {
+      "bucketAssignment": {
+       "bucketName": "observe_and_troubleshoot_apps_95_days"
+      },
+      "description": "Observe and Troubleshoot Apps Bucket",
+      "enabled": true,
+      "id": "processor_Observe_and_Troubleshoot_Apps_Bucket_7321",
+      "matcher": "matchesValue(status,\"INFO\") or matchesValue(status,\"WARN\") or matchesValue(status,\"ERROR\")",
+      "type": "bucketAssignment"
+     },
+     {
+      "bucketAssignment": {
+       "bucketName": "log_management_analytics_7_days"
+      },
+      "description": "Log Management and Analytics Bucket",
+      "enabled": true,
+      "id": "processor_Log_Management_and_Analytics_Bucket_6531",
+      "matcher": "matchesValue(status,\"NONE\")",
+      "type": "bucketAssignment"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "objectId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDc4ZTBiOWJiLThhMzktM2Y5Yi1hMGJlLTkxZWE0YzAyMjQ2Nb7vVN4V2t6t",
+  "schemaId": "builtin:openpipeline.logs.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "summary": "Log Count",
+  "value": {
+   "costAllocation": {
+    "processors": []
+   },
+   "customId": "pipeline_Log_Count_6119",
+   "dataExtraction": {
+    "processors": []
+   },
+   "davis": {
+    "processors": []
+   },
+   "displayName": "Log Count",
+   "metadataList": [],
+   "metricExtraction": {
+    "processors": [
+     {
+      "counterMetric": {
+       "dimensions": [
+        {
+         "extractionType": "field",
+         "sourceFieldName": "k8s.cluster.name"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "k8s.cluster.uid"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "k8s.namespace.name"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "k8s.workload.name"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "k8s.workload.kind"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "dt.entity.kubernetes_cluster"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "dt.entity.host_group"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "dt.entity.service"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "host.name"
+        },
+        {
+         "extractionType": "field",
+         "sourceFieldName": "dt.entity.host"
+        }
+       ],
+       "metricKey": "log.error.count"
+      },
+      "description": "Error Log Count",
+      "enabled": true,
+      "id": "processor_Error_Log_Count_4026",
+      "matcher": "loglevel == \"ERROR\"",
+      "type": "counterMetric"
+     }
+    ]
+   },
+   "processing": {
+    "processors": []
+   },
+   "productAllocation": {
+    "processors": []
+   },
+   "securityContext": {
+    "processors": []
+   },
+   "smartscapeEdgeExtraction": {
+    "processors": []
+   },
+   "smartscapeNodeExtraction": {
+    "processors": []
+   },
+   "storage": {
+    "processors": []
+   }
+  }
+ },
+ {
+  "objectId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDc5Y2YwM2RjLWI3NDctM2QyNi1hNDljLTk3ZGQ0ODlmYzJkMr7vVN4V2t6t",
+  "schemaId": "builtin:openpipeline.logs.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "summary": "Astronomy Shop OpenTelemetry Logs",
+  "value": {
+   "costAllocation": {
+    "processors": []
+   },
+   "customId": "pipeline_Astronomy_Shop_OpenTelemetry_Logs_2236",
+   "dataExtraction": {
+    "processors": [
+     {
+      "bizevent": {
+       "eventProvider": {
+        "constant": "astronomy-shop.opentelemetry",
+        "type": "constant"
+       },
+       "eventType": {
+        "constant": "astronomy-shop.app.payment.complete",
+        "type": "constant"
+       },
+       "fieldExtraction": {
+        "include": [
+         {
+          "extractionType": "field",
+          "sourceFieldName": "app.payment.msg"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "app.payment.cardType"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "app.payment.amount"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "app.payment.currencyCode"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "app.pyment.transactionid"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "log.file.path"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "trace_id"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "span_id"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "service.namespace"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "service.name"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "k8s.namespace.name"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "k8s.container.name"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "k8s.pod.name"
+         },
+         {
+          "extractionType": "field",
+          "sourceFieldName": "k8s.pod.uid"
+         }
+        ],
+        "type": "include"
+       }
+      },
+      "description": "PaymentService Transaction",
+      "enabled": true,
+      "id": "processor_PaymentService_Transaction_1952",
+      "matcher": "matchesValue(k8s.container.name,\"paymentservice\") and isNotNull(app.payment.cardType) and isNotNull(app.payment.amount) and isNotNull(app.payment.currencyCode) and isNotNull(app.payment.transactionId)",
+      "type": "bizevent"
+     }
+    ]
+   },
+   "davis": {
+    "processors": []
+   },
+   "displayName": "Astronomy Shop OpenTelemetry Logs",
+   "metadataList": [],
+   "metricExtraction": {
+    "processors": []
+   },
+   "processing": {
+    "processors": [
+     {
+      "description": "OpenTelemetry Service Name",
+      "dql": {
+       "script": "fieldsAdd service.name = app.label.component"
+      },
+      "enabled": true,
+      "id": "processor_OpenTelemetry_Service_Name_1956",
+      "matcher": "isNull(service.name) and isNotNull(app.label.component) and matchesValue(k8s.namespace.name,\"astronomy-shop\")",
+      "type": "dql"
+     },
+     {
+      "description": "OpenTelemetry Service Namespace",
+      "dql": {
+       "script": "fieldsAdd service.namespace = app.annotation.service.namespace"
+      },
+      "enabled": true,
+      "id": "processor_OpenTelemetry_Service_Namespace_2183",
+      "matcher": "isNull(service.namespace) and isNotNull(service.name) and isNotNull(app.annotation.service.namespace) and matchesValue(k8s.namespace.name,\"astronomy-shop\")",
+      "type": "dql"
+     },
+     {
+      "description": "OpenTelemetry SDK Logs",
+      "dql": {
+       "script": "fieldsAdd k8s.deployment.name = concat(\"astronomy-shop-\",service.name)\n| fieldsAdd k8s.container.name = service.name\n| fieldsAdd app.label.name = concat(\"astronomy-shop-\",service.name)\n| fieldsAdd app.label.component = service.name\n| fieldsRemove k8s.pod.name, k8s.pod.uid, k8s.replicaset.name, k8s.node.name"
+      },
+      "enabled": true,
+      "id": "processor_OpenTelemetry_SDK_Logs_7677",
+      "matcher": "isNotNull(telemetry.sdk.language) and matchesValue(k8s.deployment.name,\"astronomy-shop-otelcol\") and isNotNull(service.name) and matchesValue(k8s.namespace.name,\"astronomy-shop\")",
+      "type": "dql"
+     },
+     {
+      "description": "applications_java_001",
+      "enabled": true,
+      "id": "processor_Java_1893",
+      "technology": {
+       "customMatcher": "(matchesValue(telemetry.sdk.language,\"java\", caseSensitive: false) or matchesValue(k8s.deployment.name,\"astronomy-shop-adservice\", caseSensitive:false)) and matchesValue(k8s.namespace.name,\"astronomy-shop\")",
+       "technologyId": "applications_java_001"
+      },
+      "type": "technology"
+     },
+     {
+      "description": "PaymentService Transactions",
+      "dql": {
+       "script": "parse content, \"JSON:json_content\"\n| fieldsAdd app.payment.msg = json_content[`msg`]\n| fieldsAdd app.payment.cardType = json_content[`cardType`]\n| fieldsAdd app.payment.amount = json_content[`amount`][`units`][`low`]\n| fieldsAdd app.payment.currencyCode = json_content[`amount`][`currencyCode`]\n| fieldsAdd app.payment.transactionId = json_content[`transactionId`]\n| fieldsRemove json_content"
+      },
+      "enabled": true,
+      "id": "processor_PaymentService_Transactions_8601",
+      "matcher": "matchesValue(service.name,\"paymentservice\") and matchesValue(k8s.container.name,\"paymentservice\") and isNotNull(trace_id)",
+      "type": "dql"
+     }
+    ]
+   },
+   "productAllocation": {
+    "processors": []
+   },
+   "securityContext": {
+    "processors": []
+   },
+   "storage": {
+    "processors": []
+   }
+  }
+ },
+ {
+  "objectId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJGEyYWVkMGI3LWM5MDEtM2RmMC1hN2U2LWVhMWU5Yzk0YjRlM77vVN4V2t6t",
+  "schemaId": "builtin:openpipeline.logs.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "externalId": "com.dynatrace.extension.opentelemetry_extension.opentelemetry-logs",
+  "summary": "OpenTelemetry Host Monitoring",
+  "value": {
+   "customId": "extension.opentelemetry-logs",
+   "displayName": "OpenTelemetry Host Monitoring",
+   "metadataList": [
+    {
+     "entryKey": "extension_name",
+     "entryValue": "com.dynatrace.extension.opentelemetry"
+    },
+    {
+     "entryKey": "extension_version",
+     "entryValue": "4.0.1"
+    }
+   ],
+   "smartscapeNodeExtraction": {
+    "processors": [
+     {
+      "description": "Create entity for OpenTelemetry Host",
+      "enabled": true,
+      "id": "OTEL_HOST_logs_enrichment",
+      "matcher": "isNotNull(host.id) and isNotNull(host.name) and matchesValue(dt.openpipeline.source, \"/api/v2/otlp/v1/logs\")",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "host.id",
+         "referencedFieldName": "host.id"
+        },
+        {
+         "idComponent": "host.name",
+         "referencedFieldName": "host.name"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.otel_host",
+       "nodeType": "OTEL_HOST"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for OpenTelemetry Process",
+      "enabled": true,
+      "id": "OTEL_PROCESS_logs_enrichment",
+      "matcher": "isNotNull(host.id) and isNotNull(host.name) and isNotNull(process.executable.name) and matchesValue(dt.openpipeline.source, \"/api/v2/otlp/v1/logs\")",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "host.id",
+         "referencedFieldName": "host.id"
+        },
+        {
+         "idComponent": "host.name",
+         "referencedFieldName": "host.name"
+        },
+        {
+         "idComponent": "process.executable.name",
+         "referencedFieldName": "process.executable.name"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.otel_process",
+       "nodeType": "OTEL_PROCESS"
+      },
+      "type": "smartscapeNode"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "objectId": "vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJGRkYWY4YTRhLWI0YjYtM2U3Ni1hNjg1LTFkNTM4MzZmZDFhZr7vVN4V2t6t",
+  "schemaId": "builtin:openpipeline.logs.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "summary": "EasyTrade Credit Card Pipeline",
+  "value": {
+   "costAllocation": {
+    "processors": []
+   },
+   "customId": "pipeline_EasyTrade_Credit_Card_Pipeline_3638",
+   "dataExtraction": {
+    "processors": []
+   },
+   "davis": {
+    "processors": []
+   },
+   "displayName": "EasyTrade Credit Card Pipeline",
+   "metadataList": [],
+   "metricExtraction": {
+    "processors": [
+     {
+      "counterMetric": {
+       "dimensions": [
+        {
+         "extractionType": "field",
+         "sourceFieldName": "responseCode"
+        }
+       ],
+       "metricKey": "log.easyTrade.orderCount"
+      },
+      "description": "Order Count by Response COde",
+      "enabled": true,
+      "id": "processor_Order_Count_by_Response_COde_2568",
+      "matcher": "true",
+      "type": "counterMetric"
+     },
+     {
+      "description": "Order Response Time",
+      "enabled": true,
+      "id": "processor_Order_Response_Time_4622",
+      "matcher": "true",
+      "type": "valueMetric",
+      "valueMetric": {
+       "dimensions": [],
+       "field": "responseTime",
+       "metricKey": "log.easyTrade.orderResponseTime"
+      }
+     }
+    ]
+   },
+   "processing": {
+    "processors": [
+     {
+      "description": "Parse Credit Card Order Fields",
+      "dql": {
+       "script": "parse content, \"\"\"LD 'credit-card-order-service/v1/orders/' LD:orderNumber '/' LD '\"' SPACE INT:responseCode SPACE LONG:responseTime SPACE LD 'instruments/' LD:part '\"'\"\"\""
+      },
+      "enabled": true,
+      "id": "processor_Parse_Credit_Card_Order_Fields_3833",
+      "matcher": "true",
+      "type": "dql"
+     }
+    ]
+   },
+   "productAllocation": {
+    "processors": []
+   },
+   "securityContext": {
+    "processors": []
+   },
+   "storage": {
+    "processors": []
+   }
+  }
+ }
+]

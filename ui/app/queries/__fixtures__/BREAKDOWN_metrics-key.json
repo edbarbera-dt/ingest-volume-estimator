@@ -1,0 +1,82 @@
+[
+ {
+  "key": "dt.sfm.server.monitored_entities.new_entities_over_time",
+  "value": "1056"
+ },
+ {
+  "key": "dt.process.handles.file_descriptors_percent_used",
+  "value": "397"
+ },
+ {
+  "key": "dt.sfm.metrics.ingest.datapoints",
+  "value": "199"
+ },
+ {
+  "key": "dt.log.status_per_entity_count",
+  "value": "76"
+ },
+ {
+  "key": "orders.value_bucket",
+  "value": "64"
+ },
+ {
+  "key": "dt.profiling.jvm.threads.cpu_time",
+  "value": "54"
+ },
+ {
+  "key": "pos.basket_value_bucket",
+  "value": "48"
+ },
+ {
+  "key": "dt.process.cpu.usage",
+  "value": "43"
+ },
+ {
+  "key": "dt.process.handles.file_descriptors_used",
+  "value": "43"
+ },
+ {
+  "key": "dt.process.memory.page_faults",
+  "value": "43"
+ },
+ {
+  "key": "dt.process.memory.usage",
+  "value": "43"
+ },
+ {
+  "key": "dt.process.memory.working_set_size",
+  "value": "43"
+ },
+ {
+  "key": "dt.process.process_count",
+  "value": "43"
+ },
+ {
+  "key": "dt.process.availability",
+  "value": "41"
+ },
+ {
+  "key": "dt.process.handles.file_descriptors_max",
+  "value": "40"
+ },
+ {
+  "key": "dt.process.io.bytes_read",
+  "value": "39"
+ },
+ {
+  "key": "dt.process.io.bytes_written",
+  "value": "39"
+ },
+ {
+  "key": "dt.process.io.req_bytes_read",
+  "value": "39"
+ },
+ {
+  "key": "dt.process.io.req_bytes_write",
+  "value": "39"
+ },
+ {
+  "key": "dt.runtime.nodejs.memory.total",
+  "value": "39"
+ }
+]

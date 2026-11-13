@@ -1,0 +1,22 @@
+[
+ {
+  "key": "host-1",
+  "records": "3183650",
+  "value": 439227783
+ },
+ {
+  "key": "host-2",
+  "records": "576569",
+  "value": 282202888
+ },
+ {
+  "key": "host-3",
+  "records": "128533",
+  "value": 19074269
+ },
+ {
+  "key": "host-4",
+  "records": "126384",
+  "value": 19043775
+ }
+]

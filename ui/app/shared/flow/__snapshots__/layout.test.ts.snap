@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`layoutFlow is stable (snapshot) 1`] = `
+{
+  "edges": [
+    {
+      "from": "src:logs:oneagent",
+      "id": "src:logs:oneagent->pipe:logs:default",
+      "labelX": 309,
+      "labelY": 144.5,
+      "path": "M 228 247 C 309 247, 309 42, 390 42",
+      "to": "pipe:logs:default",
+      "value": 2786.6,
+      "width": 14,
+    },
+    {
+      "from": "pipe:logs:default",
+      "id": "pipe:logs:default->dest:default_logs",
+      "labelX": 691,
+      "labelY": 144.5,
+      "path": "M 610 42 C 691 42, 691 247, 772 247",
+      "to": "dest:default_logs",
+      "value": 2786.6,
+      "width": 14,
+    },
+  ],
+  "height": 494,
+  "nodes": [
+    {
+      "h": 68,
+      "id": "src:logs:oneagent",
+      "kind": "source",
+      "w": 220,
+      "x": 8,
+      "y": 213,
+    },
+    {
+      "h": 68,
+      "id": "pipe:logs:default",
+      "kind": "pipeline",
+      "w": 220,
+      "x": 390,
+      "y": 8,
+    },
+    {
+      "h": 68,
+      "id": "pipe:logs:vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDNmMzU5ZjhmLWJlOGUtMzczOC04MWM0LWYzNDQyNDZjMzg3Zb7vVN4V2t6t",
+      "kind": "pipeline",
+      "w": 220,
+      "x": 390,
+      "y": 90,
+    },
+    {
+      "h": 68,
+      "id": "pipe:logs:vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDc4ZTBiOWJiLThhMzktM2Y5Yi1hMGJlLTkxZWE0YzAyMjQ2Nb7vVN4V2t6t",
+      "kind": "pipeline",
+      "w": 220,
+      "x": 390,
+      "y": 172,
+    },
+    {
+      "h": 68,
+      "id": "pipe:logs:vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDc5Y2YwM2RjLWI3NDctM2QyNi1hNDljLTk3ZGQ0ODlmYzJkMr7vVN4V2t6t",
+      "kind": "pipeline",
+      "w": 220,
+      "x": 390,
+      "y": 254,
+    },
+    {
+      "h": 68,
+      "id": "pipe:logs:vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJGEyYWVkMGI3LWM5MDEtM2RmMC1hN2U2LWVhMWU5Yzk0YjRlM77vVN4V2t6t",
+      "kind": "pipeline",
+      "w": 220,
+      "x": 390,
+      "y": 336,
+    },
+    {
+      "h": 68,
+      "id": "pipe:logs:vu9U3hXa3q0AAAABACNidWlsdGluOm9wZW5waXBlbGluZS5sb2dzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJGRkYWY4YTRhLWI0YjYtM2U3Ni1hNjg1LTFkNTM4MzZmZDFhZr7vVN4V2t6t",
+      "kind": "pipeline",
+      "w": 220,
+      "x": 390,
+      "y": 418,
+    },
+    {
+      "h": 68,
+      "id": "dest:default_logs",
+      "kind": "destination",
+      "w": 220,
+      "x": 772,
+      "y": 213,
+    },
+  ],
+  "width": 1000,
+}
+`;

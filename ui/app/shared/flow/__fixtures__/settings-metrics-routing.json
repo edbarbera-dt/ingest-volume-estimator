@@ -1,0 +1,19 @@
+[
+ {
+  "objectId": "vu9U3hXa3q0AAAABACRidWlsdGluOm9wZW5waXBlbGluZS5tZXRyaWNzLnJvdXRpbmcABnRlbmFudAAGdGVuYW50ACRlYTdhMzgyYy1jYTA3LTM2YTQtOGE4ZC0zOTFhMTk0YzQwNzO-71TeFdrerQ",
+  "schemaId": "builtin:openpipeline.metrics.routing",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "value": {
+   "routingEntries": [
+    {
+     "description": "OpenTelemetry Host Monitoring",
+     "enabled": true,
+     "matcher": "isNotNull(host.id) AND matchesValue(metric.key, {\"system.*\", \"process.*\"})",
+     "pipelineId": "vu9U3hXa3q0AAAABACZidWlsdGluOm9wZW5waXBlbGluZS5tZXRyaWNzLnBpcGVsaW5lcwAGdGVuYW50AAZ0ZW5hbnQAJDE0OWE0YjI2LWExMDAtMzA1Zi04ZDNlLTQ5Njk1NWZjYmI2M77vVN4V2t6t",
+     "pipelineType": "custom"
+    }
+   ]
+  }
+ }
+]

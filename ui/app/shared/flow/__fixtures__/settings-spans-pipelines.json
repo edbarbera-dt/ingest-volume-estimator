@@ -1,0 +1,108 @@
+[
+ {
+  "objectId": "vu9U3hXa3q0AAAABACRidWlsdGluOm9wZW5waXBlbGluZS5zcGFucy5waXBlbGluZXMABnRlbmFudAAGdGVuYW50ACQwYzY2YTdhOC1lMzI4LTM4MDItODY0NS1iMThjOWMyYmExOTi-71TeFdrerQ",
+  "schemaId": "builtin:openpipeline.spans.pipelines",
+  "schemaVersion": "1.85.1",
+  "scope": "environment",
+  "externalId": "com.dynatrace.extension.opentelemetry_extension.opentelemetry-spans",
+  "summary": "OpenTelemetry Host Monitoring",
+  "value": {
+   "customId": "extension.opentelemetry-spans",
+   "displayName": "OpenTelemetry Host Monitoring",
+   "metadataList": [
+    {
+     "entryKey": "extension_name",
+     "entryValue": "com.dynatrace.extension.opentelemetry"
+    },
+    {
+     "entryKey": "extension_version",
+     "entryValue": "4.0.1"
+    }
+   ],
+   "smartscapeEdgeExtraction": {
+    "processors": [
+     {
+      "description": "Create runs_on edge for Service and OpenTelemetry Host",
+      "enabled": true,
+      "id": "OTEL_HOST_service_linking",
+      "matcher": "isNotNull(dt.smartscape.service) and isNotNull(dt.smartscape.otel_host)",
+      "smartscapeEdge": {
+       "edgeType": "runs_on",
+       "sourceIdFieldName": "dt.smartscape.service",
+       "sourceType": "SERVICE",
+       "targetIdFieldName": "dt.smartscape.otel_host",
+       "targetType": "OTEL_HOST"
+      },
+      "type": "smartscapeEdge"
+     },
+     {
+      "description": "Create runs_on edge for Service and OpenTelemetry Process",
+      "enabled": true,
+      "id": "OTEL_PROCESS_service_linking",
+      "matcher": "isNotNull(dt.smartscape.service) and isNotNull(dt.smartscape.otel_process)",
+      "smartscapeEdge": {
+       "edgeType": "runs_on",
+       "sourceIdFieldName": "dt.smartscape.service",
+       "sourceType": "SERVICE",
+       "targetIdFieldName": "dt.smartscape.otel_process",
+       "targetType": "OTEL_PROCESS"
+      },
+      "type": "smartscapeEdge"
+     }
+    ]
+   },
+   "smartscapeNodeExtraction": {
+    "processors": [
+     {
+      "description": "Create entity for OpenTelemetry Host",
+      "enabled": true,
+      "id": "OTEL_HOST_spans_enrichment",
+      "matcher": "isNotNull(host.id) and isNotNull(host.name) and matchesValue(telemetry.sdk.name, {\"opentelemetry\", \"odin\", \"otel\"})",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "host.id",
+         "referencedFieldName": "host.id"
+        },
+        {
+         "idComponent": "host.name",
+         "referencedFieldName": "host.name"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.otel_host",
+       "nodeType": "OTEL_HOST"
+      },
+      "type": "smartscapeNode"
+     },
+     {
+      "description": "Create entity for OpenTelemetry Process",
+      "enabled": true,
+      "id": "OTEL_PROCESS_spans_enrichment",
+      "matcher": "isNotNull(host.id) and isNotNull(host.name) and isNotNull(process.executable.name) and matchesValue(telemetry.sdk.name, {\"opentelemetry\", \"odin\", \"otel\"})",
+      "smartscapeNode": {
+       "extractNode": false,
+       "idComponents": [
+        {
+         "idComponent": "host.id",
+         "referencedFieldName": "host.id"
+        },
+        {
+         "idComponent": "host.name",
+         "referencedFieldName": "host.name"
+        },
+        {
+         "idComponent": "process.executable.name",
+         "referencedFieldName": "process.executable.name"
+        }
+       ],
+       "nodeIdFieldName": "dt.smartscape.otel_process",
+       "nodeType": "OTEL_PROCESS"
+      },
+      "type": "smartscapeNode"
+     }
+    ]
+   }
+  }
+ }
+]
