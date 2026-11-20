@@ -1,5 +1,7 @@
 # Ingest Volume Estimator
 
+> **Install it in your environment:** follow [DEPLOYMENT.md](DEPLOYMENT.md).
+
 A Dynatrace platform app that shows how much data a tenant ingests per signal (logs, metrics,
 traces, events), what it costs at list price (or your rate card), and what it would cost at
 production scale.
@@ -138,18 +140,10 @@ scripts/validate-queries.sh --context sprint
 `--save-fixtures ui/app/queries/__fixtures__` refreshes the test fixtures. Anonymise host names
 before you commit them.
 
-## Deploy to another tenant
+## Deploy
 
-The tenant URL is only set in `app.config.json`. Override it per command, without editing the
-file:
-
-```bash
-DT_APP_ENVIRONMENT_URL=https://<tenant-id>.apps.dynatrace.com npx dt-app deploy
-```
-
-`npx dt-app deploy --environment-url <url>` works too. Deploy opens a browser for SSO login.
-If another version of the app is already installed on that tenant under a different owner,
-change the app `id` in `app.config.json` first.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for installing the app in your own environment: prerequisites,
+IAM policies for users, updates, CI/CD deployment and troubleshooting.
 
 ## Limitations
 
