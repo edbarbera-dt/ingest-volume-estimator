@@ -18,6 +18,10 @@ production scale.
 
 Design: [`docs/plans/2026-11-13-ingest-volume-estimator-design.md`](docs/plans/2026-11-13-ingest-volume-estimator-design.md)
 
+## Demo
+
+https://github.com/user-attachments/assets/41c32bd0-2134-4240-a16b-ae31c4a435ee
+
 ## Pages
 
 | Page | What it shows |
