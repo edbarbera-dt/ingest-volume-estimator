@@ -4,8 +4,8 @@ import { isNonNegative, isObject, nonNegativeOr, parseJson } from "./parsing";
 export interface ExtrapolationInputs {
   /** Which driver each signal scales with. */
   drivers: Record<Signal, Driver>;
-  /** Manual POC driver counts that replace detected ones. */
-  pocOverrides: Partial<Record<Driver, number>>;
+  /** Manual current driver counts that replace detected ones. */
+  driverOverrides: Partial<Record<Driver, number>>;
   /** Production driver counts. 0 means "not entered yet". */
   prodCounts: Record<Driver, number>;
   multiplier: number;
@@ -17,7 +17,7 @@ const DEFAULT_RETENTION: Record<Signal, number> = { logs: 35, traces: 10, metric
 export function defaultInputs(): ExtrapolationInputs {
   return {
     drivers: Object.fromEntries(SIGNALS.map((s) => [s, SIGNAL_META[s].defaultDriver])) as Record<Signal, Driver>,
-    pocOverrides: {},
+    driverOverrides: {},
     prodCounts: Object.fromEntries(DRIVERS.map((d) => [d, 0])) as Record<Driver, number>,
     multiplier: 1,
     retentionDays: { ...DEFAULT_RETENTION },
@@ -31,20 +31,21 @@ export function parseInputs(raw: unknown): ExtrapolationInputs {
   const v = parseJson(raw);
   if (!isObject(v)) return d;
   const drivers = isObject(v.drivers) ? v.drivers : {};
-  const overrides = isObject(v.pocOverrides) ? v.pocOverrides : {};
+  // Inputs saved by app versions before 1.0.0 use the key "pocOverrides".
+  const overrides = isObject(v.driverOverrides) ? v.driverOverrides : isObject(v.pocOverrides) ? v.pocOverrides : {};
   const prod = isObject(v.prodCounts) ? v.prodCounts : {};
   const retention = isObject(v.retentionDays) ? v.retentionDays : {};
 
-  const pocOverrides: Partial<Record<Driver, number>> = {};
+  const driverOverrides: Partial<Record<Driver, number>> = {};
   for (const k of DRIVERS) {
     const o = overrides[k];
-    if (isNonNegative(o)) pocOverrides[k] = o;
+    if (isNonNegative(o)) driverOverrides[k] = o;
   }
   return {
     drivers: Object.fromEntries(
       SIGNALS.map((s) => [s, isDriver(drivers[s]) ? drivers[s] : d.drivers[s]]),
     ) as Record<Signal, Driver>,
-    pocOverrides,
+    driverOverrides,
     prodCounts: Object.fromEntries(DRIVERS.map((k) => [k, nonNegativeOr(prod[k], d.prodCounts[k])])) as Record<Driver, number>,
     multiplier: nonNegativeOr(v.multiplier, d.multiplier),
     retentionDays: Object.fromEntries(

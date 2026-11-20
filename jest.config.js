@@ -23,4 +23,9 @@ module.exports = {
     "^streamdown$": "<rootDir>/ui/test/emptyModule.js",
   },
   setupFilesAfterEnv: ["<rootDir>/ui/test/setup.ts"],
+  collectCoverageFrom: ["ui/app/**/*.{ts,tsx}", "!ui/app/**/*.test.{ts,tsx}", "!ui/app/**/__fixtures__/**"],
+  // `npm run test:coverage` fails if coverage drops below these levels.
+  coverageThreshold: {
+    global: { statements: 95, branches: 85, functions: 90, lines: 95 },
+  },
 };

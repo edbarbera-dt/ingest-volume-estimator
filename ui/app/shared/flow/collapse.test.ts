@@ -39,3 +39,50 @@ describe("collapseSources", () => {
     expect(c.edges.filter((e) => e.from === "src:0")).toHaveLength(0);
   });
 });
+
+describe("collapseSources edge cases", () => {
+  it("uses the default limit of 15", () => {
+    const g = graphWith(15);
+    expect(collapseSources(g)).toBe(g);
+    expect(collapseSources(graphWith(16)).nodes.filter((n) => n.kind === "source")).toHaveLength(15);
+  });
+
+  it("keeps bytes unknown when every folded source has no bytes estimate", () => {
+    const g = graphWith(4);
+    const nulls: FlowGraph = {
+      ...g,
+      nodes: g.nodes.map((n) => ({ ...n, bytesRate: null })),
+      edges: g.edges.map((e) => ({ ...e, bytesRate: null })),
+    };
+    const c = collapseSources(nulls, 2);
+    expect(c.nodes.find((n) => n.id === "src:other")?.bytesRate).toBeNull();
+    expect(c.edges.find((e) => e.from === "src:other")?.bytesRate).toBeNull();
+  });
+
+  it("merges route names and estimated flags per target and keeps one Other edge per target", () => {
+    const sources = Array.from({ length: 4 }, (_, i) => node(`src:${i}`, "source", i + 1));
+    const g: FlowGraph = {
+      nodes: [...sources, node("pipe:a", "pipeline", 0), node("pipe:b", "pipeline", 0)],
+      edges: [
+        { ...edge("src:0", "pipe:a", 1), routeName: "r1" },
+        { ...edge("src:1", "pipe:a", 2), routeName: "r1", estimatedSplit: true },
+        { ...edge("src:1", "pipe:b", 2), routeName: "r2" },
+        edge("src:3", "pipe:a", 4),
+      ],
+      windowSeconds: 10,
+      start: new Date(0),
+      intervalMs: 1000,
+    };
+    const c = collapseSources(g, 2);
+    const other = c.edges.filter((e) => e.from === "src:other");
+    expect(other.map((e) => e.to).sort()).toEqual(["pipe:a", "pipe:b"]);
+    expect(other.find((e) => e.to === "pipe:a")).toMatchObject({ routeName: "r1", estimatedSplit: true, rate: 3 });
+    expect(other.find((e) => e.to === "pipe:b")).toMatchObject({ routeName: "r2", estimatedSplit: false });
+    expect(c.edges.find((e) => e.from === "src:3")).toBeDefined();
+  });
+
+  it("leaves routeName undefined when no folded edge has one", () => {
+    const c = collapseSources(graphWith(4), 2);
+    expect(c.edges.find((e) => e.from === "src:other")?.routeName).toBeUndefined();
+  });
+});

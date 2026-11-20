@@ -47,25 +47,25 @@ export const Extrapolate = () => {
   const { card } = useRateCard();
   const [draft, setDraft] = useState<ExtrapolationInputs | null>(null);
 
-  // Initialise once: saved inputs, or production counts prefilled with the POC counts.
+  // Initialise once: saved inputs, or production counts prefilled with the current counts.
   useEffect(() => {
     if (draft || stored.isLoading || !drivers.data) return;
     const v = stored.value;
     const empty = DRIVERS.every((d) => v.prodCounts[d] === 0);
-    setDraft(empty ? { ...v, prodCounts: effectiveDrivers(drivers.data.counts, v.pocOverrides) } : v);
+    setDraft(empty ? { ...v, prodCounts: effectiveDrivers(drivers.data.counts, v.driverOverrides) } : v);
   }, [draft, stored.isLoading, stored.value, drivers.data]);
 
   useAutoSave(draft, stored.save);
 
-  const pocPerDay = useMemo(() => {
+  const currentPerDay = useMemo(() => {
     const out = {} as Record<Signal, number>;
     for (const s of SIGNALS) out[s] = totals.data && tf.days > 0 ? totals.data.bySignal[s].volume / tf.days : 0;
     return out;
   }, [totals.data, tf.days]);
 
   const projection = useMemo(
-    () => (draft && drivers.data ? buildProjection(draft, drivers.data.counts, pocPerDay, card) : null),
-    [draft, drivers.data, pocPerDay, card],
+    () => (draft && drivers.data ? buildProjection(draft, drivers.data.counts, currentPerDay, card) : null),
+    [draft, drivers.data, currentPerDay, card],
   );
 
   const columns = useMemo<DataTableColumnDef<ProjectionTableRow>[]>(() => {
@@ -73,11 +73,11 @@ export const Extrapolate = () => {
     return [
       { id: "signal", header: "Signal", accessor: (r) => SIGNAL_META[r.signal].label },
       {
-        id: "pocPerDay",
-        header: "POC / day",
-        accessor: "pocPerDay",
+        id: "currentPerDay",
+        header: "Current / day",
+        accessor: "currentPerDay",
         alignment: "right",
-        cell: ({ rowData: r }) => <Muted disabled={r.disabled}>{formatVolume(r.pocPerDay, unit(r))}</Muted>,
+        cell: ({ rowData: r }) => <Muted disabled={r.disabled}>{formatVolume(r.currentPerDay, unit(r))}</Muted>,
       },
       {
         id: "rate",
@@ -123,7 +123,7 @@ export const Extrapolate = () => {
   return (
     <AppShell
       title="Extrapolate"
-      subtitle="Scale POC ingest to production with per-unit drivers"
+      subtitle="Scale current ingest to production with per-unit drivers"
       actions={<EstimateChip />}
     >
       <QueryState
@@ -140,7 +140,7 @@ export const Extrapolate = () => {
             <Grid gridTemplateColumns="repeat(auto-fit, minmax(320px, 1fr))" gap={16}>
               <Surface elevation="raised">
                 <Flex flexDirection="column" gap={12} padding={16}>
-                  <Heading level={5}>POC drivers</Heading>
+                  <Heading level={5}>Current drivers</Heading>
                   <Paragraph>
                     Detected from Smartscape and host billing ({formatNumber(drivers.data.billing.hosts)} billed hosts).
                     Override a count if detection is wrong or missing.
@@ -151,15 +151,15 @@ export const Extrapolate = () => {
                         {DRIVER_LABELS[d]} (detected {formatNumber(drivers.data?.counts[d] ?? 0)})
                       </Label>
                       <NumberInput
-                        aria-label={`POC ${DRIVER_LABELS[d]}`}
+                        aria-label={`Current ${DRIVER_LABELS[d]}`}
                         min={0}
-                        value={draft.pocOverrides[d] ?? drivers.data?.counts[d] ?? 0}
+                        value={draft.driverOverrides[d] ?? drivers.data?.counts[d] ?? 0}
                         onChange={(v) =>
                           update((x) => {
-                            const pocOverrides = { ...x.pocOverrides };
-                            if (v === null || v === drivers.data?.counts[d]) delete pocOverrides[d];
-                            else pocOverrides[d] = Math.max(0, v);
-                            return { ...x, pocOverrides };
+                            const driverOverrides = { ...x.driverOverrides };
+                            if (v === null || v === drivers.data?.counts[d]) delete driverOverrides[d];
+                            else driverOverrides[d] = Math.max(0, v);
+                            return { ...x, driverOverrides };
                           })
                         }
                       />
@@ -240,7 +240,7 @@ export const Extrapolate = () => {
             {projection.rows.some((r) => r.disabled) && (
               <MessageContainer variant="warning">
                 <MessageContainer.Description>
-                  Some signals have a driver count of 0 in the POC, so no per-unit rate can be derived. Set the POC
+                  Some signals have a driver count of 0 in this environment, so no per-unit rate can be derived. Set the current
                   driver count manually or pick another driver.
                 </MessageContainer.Description>
               </MessageContainer>

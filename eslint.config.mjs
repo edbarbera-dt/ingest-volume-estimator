@@ -31,6 +31,7 @@ export default defineConfig([
   globalIgnores([
     "**/node_modules",
     "**/dist",
+    "**/coverage",
     "**/.dt-app",
     "**/app.config.*",
     "**/jest.*config.js",

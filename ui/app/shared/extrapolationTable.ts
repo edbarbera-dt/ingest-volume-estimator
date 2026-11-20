@@ -5,7 +5,7 @@ import { DRIVERS, SIGNALS, SIGNAL_META, type Driver, type Signal } from "./signa
 
 export interface ProjectionTableRow extends ProjectionRow {
   driver: Driver;
-  pocDriverCount: number;
+  currentDriverCount: number;
   prodCount: number;
 }
 
@@ -14,7 +14,7 @@ export interface Projection {
   total: { ingestCost: number; retainCost: number; totalCost: number };
 }
 
-/** Detected POC counts with manual overrides applied. */
+/** Detected driver counts with manual overrides applied. */
 export function effectiveDrivers(
   detected: Record<Driver, number>,
   overrides: Partial<Record<Driver, number>>,
@@ -25,22 +25,22 @@ export function effectiveDrivers(
 export function buildProjection(
   inputs: ExtrapolationInputs,
   detected: Record<Driver, number>,
-  pocPerDay: Record<Signal, number>,
+  currentPerDay: Record<Signal, number>,
   card: RateCard,
 ): Projection {
-  const poc = effectiveDrivers(detected, inputs.pocOverrides);
+  const current = effectiveDrivers(detected, inputs.driverOverrides);
   const rows = SIGNALS.map((signal) => {
     const driver = inputs.drivers[signal];
     const row = projectSignal({
       signal,
-      pocVolumePerDay: pocPerDay[signal],
-      pocDriverCount: poc[driver],
+      currentVolumePerDay: currentPerDay[signal],
+      currentDriverCount: current[driver],
       prodCount: inputs.prodCounts[driver],
       multiplier: inputs.multiplier,
       retentionDays: inputs.retentionDays[signal],
       card,
     });
-    return { ...row, driver, pocDriverCount: poc[driver], prodCount: inputs.prodCounts[driver] };
+    return { ...row, driver, currentDriverCount: current[driver], prodCount: inputs.prodCounts[driver] };
   });
   return { rows, total: projectTotal(rows) };
 }
@@ -56,8 +56,8 @@ export function projectionCsv(p: Projection, currency: CurrencyCode): string {
     "signal",
     "unit",
     "driver",
-    "poc_per_day",
-    "poc_driver_count",
+    "current_per_day",
+    "current_driver_count",
     "rate_per_unit",
     "prod_driver_count",
     "prod_per_day",
@@ -71,8 +71,8 @@ export function projectionCsv(p: Projection, currency: CurrencyCode): string {
       SIGNAL_META[r.signal].label,
       SIGNAL_META[r.signal].unit,
       r.driver,
-      r.pocPerDay,
-      r.pocDriverCount,
+      r.currentPerDay,
+      r.currentDriverCount,
       r.ratePerUnit,
       r.prodCount,
       r.prodPerDay,
