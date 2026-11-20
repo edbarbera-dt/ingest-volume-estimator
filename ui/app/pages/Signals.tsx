@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Button } from "@dynatrace/strato-components/buttons";
 import { CategoricalBarChart } from "@dynatrace/strato-components/charts";
 import { MessageContainer } from "@dynatrace/strato-components/content";
-import { FormField, Label, Select, Switch } from "@dynatrace/strato-components/forms";
+import { FormField, Label, Select, Switch, TextInput } from "@dynatrace/strato-components/forms";
 import { Flex, Surface } from "@dynatrace/strato-components/layouts";
 import { Tab, Tabs } from "@dynatrace/strato-components/navigation";
 import { DataTable, type DataTableColumnDef } from "@dynatrace/strato-components/tables";
@@ -13,7 +13,14 @@ import { useTimeframe } from "../context/Timeframe";
 import { useBreakdown } from "../hooks/useBreakdown";
 import { useIngestTotals } from "../hooks/useIngestTotals";
 import { useRateCard } from "../hooks/useRateCard";
-import { BREAKDOWNS, type BreakdownDef } from "../queries/breakdown";
+import {
+  BREAKDOWNS,
+  PRIMARY_GRAIL_FIELDS,
+  PRIMARY_TAG_PREFIX,
+  isValidFieldName,
+  primaryFieldBreakdown,
+  type BreakdownDef,
+} from "../queries/breakdown";
 import type { BreakdownRow } from "../queries/parse";
 import { scanEstimate, topWithShare } from "../shared/scanCost";
 import { SIGNALS, SIGNAL_META, signalColor, type Signal } from "../shared/signals";
@@ -28,6 +35,33 @@ const RAW_SCOPE: Record<Signal, string> = {
 };
 
 const BYTE_MEASURES = new Set(["content bytes", "billed bytes"]);
+
+const PRIMARY = "primary";
+const CUSTOM_TAG = "custom-tag";
+const DEFAULT_PRIMARY_FIELD = "k8s.cluster.name";
+
+/** How much of the measured volume carries no value for a primary field. */
+const PrimaryCoverage = ({ def, rows }: { def: BreakdownDef; rows: BreakdownRow[] }) => {
+  const missing = rows.find((r) => r.key === "(none)")?.share ?? 0;
+  if (missing === 0) {
+    return (
+      <MessageContainer variant="success">
+        <MessageContainer.Description>Every record in this window has {def.label} set.</MessageContainer.Description>
+      </MessageContainer>
+    );
+  }
+  return (
+    <MessageContainer variant="warning">
+      <MessageContainer.Title>
+        {formatPercent(missing)} of {def.measure} have no {def.label}
+      </MessageContainer.Title>
+      <MessageContainer.Description>
+        Primary Grail fields and primary tags are indexed, so filtering, permissions and cost allocation on them are fast
+        and cheap. Set them at the source or with OpenPipeline enrichment to cover the &quot;(none)&quot; share.
+      </MessageContainer.Description>
+    </MessageContainer>
+  );
+};
 
 function formatMeasure(def: BreakdownDef, value: number): string {
   return BYTE_MEASURES.has(def.measure) ? formatVolume(value / GIB, "GiB") : formatNumber(value);
@@ -94,8 +128,19 @@ const SignalBreakdown = ({ signal, billedGiBPerDay }: { signal: Signal; billedGi
   const { card } = useRateCard();
   const defs = useMemo(() => BREAKDOWNS.filter((b) => b.signal === signal), [signal]);
   const [defId, setDefId] = useState(defs[0].id);
+  const [primaryField, setPrimaryField] = useState(DEFAULT_PRIMARY_FIELD);
+  const [tagKey, setTagKey] = useState("");
   const [fullTimeframe, setFullTimeframe] = useState(false);
-  const def = defs.find((d) => d.id === defId) ?? defs[0];
+  const isPrimary = defId === PRIMARY;
+  const field = primaryField === CUSTOM_TAG ? `${PRIMARY_TAG_PREFIX}${tagKey.trim()}` : primaryField;
+  const fieldValid = primaryField !== CUSTOM_TAG || (tagKey.trim() !== "" && isValidFieldName(field));
+  const def = useMemo(
+    () =>
+      isPrimary
+        ? primaryFieldBreakdown(signal, fieldValid ? field : DEFAULT_PRIMARY_FIELD)
+        : (defs.find((d) => d.id === defId) ?? defs[0]),
+    [isPrimary, signal, fieldValid, field, defs, defId],
+  );
   const window = useMemo(() => (fullTimeframe ? tf : clampToLastHours(tf, 24)), [fullTimeframe, tf]);
   const scan = scanEstimate(def, billedGiBPerDay, window.days, card.currency);
   const breakdown = useBreakdown(def, window);
@@ -106,20 +151,42 @@ const SignalBreakdown = ({ signal, billedGiBPerDay }: { signal: Signal; billedGi
       <Flex gap={16} alignItems="flex-end" flexWrap="wrap">
         <FormField>
           <Label>Break down by</Label>
-          <Select value={def.id} onChange={(v) => v && setDefId(String(v))}>
+          <Select value={defId} onChange={(v) => v && setDefId(String(v))}>
             <Select.Content>
               {defs.map((d) => (
                 <Select.Option key={d.id} value={d.id}>
                   {d.label}
                 </Select.Option>
               ))}
+              <Select.Option value={PRIMARY}>Primary Grail field</Select.Option>
             </Select.Content>
           </Select>
         </FormField>
+        {isPrimary && (
+          <FormField>
+            <Label>Field</Label>
+            <Select value={primaryField} onChange={(v) => v && setPrimaryField(String(v))}>
+              <Select.Content>
+                {PRIMARY_GRAIL_FIELDS.map((f) => (
+                  <Select.Option key={f} value={f}>
+                    {f}
+                  </Select.Option>
+                ))}
+                <Select.Option value={CUSTOM_TAG}>Primary tag…</Select.Option>
+              </Select.Content>
+            </Select>
+          </FormField>
+        )}
+        {isPrimary && primaryField === CUSTOM_TAG && (
+          <FormField>
+            <Label>Primary tag key</Label>
+            <TextInput value={tagKey} onChange={setTagKey} placeholder="e.g. team, cost_center" />
+          </FormField>
+        )}
         <Switch value={fullTimeframe} onChange={setFullTimeframe}>
           Use the full timeframe (default: last 24 hours)
         </Switch>
-        <Button variant="emphasized" onClick={breakdown.run} loading={breakdown.isLoading}>
+        <Button variant="emphasized" onClick={breakdown.run} loading={breakdown.isLoading} disabled={!fieldValid}>
           Run breakdown
         </Button>
       </Flex>
@@ -149,7 +216,12 @@ const SignalBreakdown = ({ signal, billedGiBPerDay }: { signal: Signal; billedGi
           isEmpty={!!breakdown.data && breakdown.data.length === 0}
           emptyTitle={`No ${SIGNAL_META[signal].label.toLowerCase()} available.`}
         >
-          {breakdown.data && <ResultView def={def} rows={breakdown.data} />}
+          {breakdown.data && (
+            <Flex flexDirection="column" gap={16}>
+              {isPrimary && <PrimaryCoverage def={def} rows={breakdown.data} />}
+              <ResultView def={def} rows={breakdown.data} />
+            </Flex>
+          )}
         </QueryState>
       ) : (
         <Paragraph>Choose a dimension and select Run breakdown. Nothing is queried until then.</Paragraph>

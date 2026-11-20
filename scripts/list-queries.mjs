@@ -23,5 +23,12 @@ const out = [
   ]),
   { name: "FLOW_BUCKET_RECORDS", tier: "flow", hours: 24, fields: ["bucket_name", "r"], query: flow.FLOW_BUCKET_RECORDS },
   ...breakdown.BREAKDOWNS.map((b) => ({ name: `BREAKDOWN_${b.id}`, tier: "breakdown", fields: ["key", "value"], query: b.query })),
+  // Primary-field breakdowns differ only in the quoted field name; validate one field per signal.
+  ...breakdown.PRIMARY_FIELD_SIGNALS.map((s) => ({
+    name: `BREAKDOWN_${s}-primary`,
+    tier: "breakdown",
+    fields: ["key", "value"],
+    query: breakdown.primaryFieldBreakdown(s, "k8s.cluster.name").query,
+  })),
 ];
 for (const q of out) console.log(JSON.stringify(q));

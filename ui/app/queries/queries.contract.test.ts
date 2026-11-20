@@ -35,6 +35,12 @@ const ALL_QUERIES: [string, string][] = [
   ...stringExports(drivers),
   ...stringExports(buckets),
   ...breakdown.BREAKDOWNS.map((b): [string, string] => [`BREAKDOWN_${b.id}`, b.query]),
+  ...breakdown.PRIMARY_FIELD_SIGNALS.flatMap((s) =>
+    [...breakdown.PRIMARY_GRAIL_FIELDS, `${breakdown.PRIMARY_TAG_PREFIX}team`].map((f): [string, string] => [
+      `BREAKDOWN_${s}-primary:${f}`,
+      breakdown.primaryFieldBreakdown(s, f).query,
+    ]),
+  ),
   ...Object.entries(flow.FLOW_QUERIES).flatMap(([w, q]): [string, string][] => [
     [`FLOW_SOURCES_${w}`, q.sources],
     [`FLOW_ROUTING_${w}`, q.routing],
@@ -80,6 +86,30 @@ describe("DQL constants", () => {
     for (const b of breakdown.BREAKDOWNS) expect(b.query).toMatch(/\| limit \d+/);
   });
 
+  it("builds primary-field breakdowns with a quoted field, a raw source and a cap", () => {
+    for (const s of breakdown.PRIMARY_FIELD_SIGNALS) {
+      const def = breakdown.primaryFieldBreakdown(s, "primary_tags.cost-center");
+      expect(def.id).toBe(`${s}-primary:primary_tags.cost-center`);
+      expect(def.signal).toBe(s);
+      expect(def.source).toBe("raw");
+      expect(def.query).toContain('coalesce(`primary_tags.cost-center`, "(none)")');
+      expect(def.query).toMatch(/\| limit \d+/);
+    }
+  });
+
+  it.each(["", "a`b", "x | fetch logs", "primary_tags.", ".team", 'a"b', "a b"])(
+    "rejects the unsafe field name %p",
+    (f) => {
+      expect(breakdown.isValidFieldName(f)).toBe(false);
+      expect(() => breakdown.primaryFieldBreakdown("logs", f)).toThrow(/Invalid field name/);
+    },
+  );
+
+  it("lists every primary Grail field once", () => {
+    expect(new Set(breakdown.PRIMARY_GRAIL_FIELDS).size).toBe(breakdown.PRIMARY_GRAIL_FIELDS.length);
+    for (const f of breakdown.PRIMARY_GRAIL_FIELDS) expect(breakdown.isValidFieldName(f)).toBe(true);
+  });
+
   it("uses a different interval per flow window", () => {
     expect(flow.FLOW_QUERIES["5m"].sources).toContain("interval: 1m");
     expect(flow.FLOW_QUERIES["24h"].sources).toContain("interval: 15m");
@@ -87,7 +117,7 @@ describe("DQL constants", () => {
 
   it("lists every exported breakdown query in BREAKDOWNS", () => {
     const listed = new Set(breakdown.BREAKDOWNS.map((b) => b.query));
-    for (const [name, q] of stringExports(breakdown)) {
+    for (const [name, q] of stringExports(breakdown).filter(([, v]) => SOURCE_COMMANDS.test(v))) {
       expect({ name, listed: listed.has(q) }).toEqual({ name, listed: true });
     }
   });
@@ -117,6 +147,7 @@ describe("scripts/list-queries.mjs", () => {
     expect(script).toContain("breakdown.BREAKDOWNS.map");
     expect(script).toContain("Object.entries(flow.FLOW_QUERIES)");
     for (const kind of ["sources", "routing", "out"]) expect(script).toContain(`query: q.${kind}`);
+    expect(script).toContain("breakdown.PRIMARY_FIELD_SIGNALS.map");
   });
 });
 
