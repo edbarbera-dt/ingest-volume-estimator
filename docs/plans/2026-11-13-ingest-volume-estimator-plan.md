@@ -190,7 +190,7 @@ Commit: `feat: add signal breakdown page`.
 - Detected drivers from Q3 + Q4, which the user can override.
 - Driver choice per signal, with the design defaults.
 - Production counts, multiplier and retention days as `NumberInput`s.
-- Output `DataTable`: per signal, POC/day, rate per unit, production/day, production/month, cost/month, plus a total.
+- Output `DataTable`: per signal, current/day, rate per unit, production/day, production/month, cost/month, plus a total.
 - A greyed-out row with a "set driver manually" prompt when the driver count is 0.
 - CSV export via a `Button`.
 - The last inputs are saved to state.

@@ -12,7 +12,7 @@ export interface DriverCounts {
   billing: HostDrivers;
 }
 
-/** Q3 + Q4: POC driver counts. */
+/** Q3 + Q4: current driver counts. */
 export function useDrivers(): QueryResult<DriverCounts> {
   const tf = useTimeframe();
   const hosts = useTimeframedDql(HOST_DRIVERS, tf, parseHostDrivers);

@@ -197,7 +197,7 @@ export const Baselines = () => {
           </Paragraph>
           <FormField>
             <Label>Label</Label>
-            <TextInput value={label} onChange={setLabel} placeholder="e.g. POC week 1, before log filters" />
+            <TextInput value={label} onChange={setLabel} placeholder="e.g. Week 1, before log filters" />
           </FormField>
           {store.saveError && <Text>Could not save: {store.saveError.message}</Text>}
         </Flex>

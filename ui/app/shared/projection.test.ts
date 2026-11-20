@@ -6,8 +6,8 @@ describe("projectSignal", () => {
     // 7 GiB/day over 7 hosts = 1 GiB/host/day; 100 prod hosts × 1.0 = 100 GiB/day
     const r = projectSignal({
       signal: "logs",
-      pocVolumePerDay: 7,
-      pocDriverCount: 7,
+      currentVolumePerDay: 7,
+      currentDriverCount: 7,
       prodCount: 100,
       multiplier: 1,
       retentionDays: 35,
@@ -26,8 +26,8 @@ describe("projectSignal", () => {
   it("prices metrics per 100k data points without retain cost", () => {
     const r = projectSignal({
       signal: "metrics",
-      pocVolumePerDay: 300_000,
-      pocDriverCount: 3,
+      currentVolumePerDay: 300_000,
+      currentDriverCount: 3,
       prodCount: 30,
       multiplier: 1,
       retentionDays: 462,
@@ -41,8 +41,8 @@ describe("projectSignal", () => {
   it("is disabled with null figures when the driver count is 0", () => {
     const r = projectSignal({
       signal: "traces",
-      pocVolumePerDay: 8,
-      pocDriverCount: 0,
+      currentVolumePerDay: 8,
+      currentDriverCount: 0,
       prodCount: 10,
       multiplier: 1,
       retentionDays: 10,

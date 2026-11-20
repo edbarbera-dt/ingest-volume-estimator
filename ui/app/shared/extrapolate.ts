@@ -6,7 +6,7 @@ export function perDay(volume: number, days: number): number {
   return volume / days;
 }
 
-/** POC volume per day per driver unit (e.g. GiB/day per host). Null when the driver count is unusable. */
+/** Current volume per day per driver unit (e.g. GiB/day per host). Null when the driver count is unusable. */
 export function ratePerUnit(volumePerDay: number, driverCount: number): number | null {
   if (!finite(volumePerDay) || !finite(driverCount) || driverCount <= 0) return null;
   return volumePerDay / driverCount;

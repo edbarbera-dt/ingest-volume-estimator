@@ -4,11 +4,12 @@ A Dynatrace platform app that shows how much data a tenant ingests per signal (l
 traces, events), what it costs at list price (or your rate card), and what it would cost at
 production scale.
 
-- **SEs during a POC:** measure POC ingest and extrapolate the production cost.
-- **Customers after go-live:** save a baseline, optimise (drop rules, sampling, retention), then
+- **Plan growth:** measure what a subset of your environment ingests today and project the
+  volume and cost when you roll out to all hosts, services or clusters.
+- **Optimise:** save a baseline, change what you ingest (drop rules, sampling, retention), then
   compare.
 
-Design: [`docs/plans/2026-11-13-ingest-volume-estimator-design.md`](../../docs/plans/2026-11-13-ingest-volume-estimator-design.md)
+Design: [`docs/plans/2026-11-13-ingest-volume-estimator-design.md`](docs/plans/2026-11-13-ingest-volume-estimator-design.md)
 
 ## Pages
 
@@ -16,7 +17,7 @@ Design: [`docs/plans/2026-11-13-ingest-volume-estimator-design.md`](../../docs/p
 |---|---|
 | Overview | Volume, per-day volume and estimated cost per signal, change against the active baseline, daily ingest (volume or cost), cost share, and a table by bucket with retention and stored volume |
 | Signals | Top contributors per signal (log source / namespace / host, service, monitoring source / metric key, billing category / provider). Runs only when you click **Run breakdown**, after it shows an estimated scan size and query cost |
-| Extrapolate | Detected POC drivers (hosts, services, pods, clusters, containers) with overrides, a driver per signal, production counts, a multiplier and retention days. Shows a projected monthly volume and cost per signal, with CSV export |
+| Extrapolate | Detected current drivers (hosts, services, pods, clusters, containers) with overrides, a driver per signal, production counts, a multiplier and retention days. Shows a projected monthly volume and cost per signal, with CSV export |
 | Baselines | Labelled snapshots of per-day ingest and driver counts. Set one active for the Overview, or compare two |
 | Settings | The rate card: ingest price, retain price per GiB-day and included retention per signal, plus currency |
 | Flow | OpenPipeline sources → pipelines → destinations per signal (LOGS / METRICS / TRACES / EVENTS) over 5m, 1h or 24h. Edges show ~GiB/s or records/s; hover a node to trace its paths, click it for details |
@@ -34,7 +35,7 @@ Tier 1 is the source of truth for volume and cost. Tier 3 only splits volume int
 Extrapolation, per signal:
 
 ```
-rate_per_unit    = POC volume per day / POC driver count
+rate_per_unit    = current volume per day / current driver count
 prod_per_day     = rate_per_unit × production driver count × multiplier
 ingest_cost/mo   = prod_per_day × 30 × ingest price
 retain_cost/mo   = prod_per_day × max(0, retention − included days) × retain price × 30
@@ -49,7 +50,7 @@ as pure functions with Jest tests.
   `dt.sfm.openpipeline.pipelines_out.records` (pipeline → bucket). Source totals come from
   `dt.sfm.openpipeline.ingest_sources_in.records`. Rate = records in the window ÷ window seconds.
 - **Pipelines:** when the metrics carry `pipeline_id`, it is matched to the pipeline's `customId`.
-  Otherwise (as on rkj7350h) the metric `route_name` is matched to a routing entry's description
+  Otherwise the metric `route_name` is matched to a routing entry's description
   in `builtin:openpipeline.<configuration>.routing`, whose `pipelineId` names the pipeline. The
   `default` route is the built-in default pipeline.
 - **Pipeline → bucket:** `pipelines_out` has no pipeline dimension without `pipeline_id`. With one
@@ -113,8 +114,20 @@ npm install
 npm run start        # dev server against the tenant in app.config.json
 npm run lint
 npm run test
+npm run test:coverage  # fails below 95% statements/lines, 90% functions, 85% branches
 npm run build
 ```
+
+## Tests
+
+| Type | Where | What it checks |
+|---|---|---|
+| Unit | `ui/app/shared/**/*.test.ts` | Cost, extrapolation, baselines, rate card, units, timeframe and Flow graph/layout maths |
+| Query contract | `ui/app/queries/*.test.ts` | Every DQL constant is well formed, every fixture has the fields the parsers need, and the parsers handle them |
+| Hook | `ui/app/hooks/*.test.ts(x)`, `ui/app/context/*.test.tsx` | Persisted state, auto-save debounce, driver merging, timeframe resolution |
+| Component | `ui/app/components/**/*.test.tsx` | Signal cards, app shell, Flow canvas and node details |
+| Page integration | `ui/app/pages/*.test.tsx`, `ui/app/App.test.tsx` | Routing and user flows on each page (overrides, CSV export, baselines, rate card) against fixture data |
+| Live query | `npm run test:queries -- --context <dtctl-context>` | Runs every query against a real tenant and checks the result shape |
 
 Check every query against a tenant with dtctl (it never changes your current dtctl context):
 
@@ -135,8 +148,8 @@ DT_APP_ENVIRONMENT_URL=https://<tenant-id>.apps.dynatrace.com npx dt-app deploy
 ```
 
 `npx dt-app deploy --environment-url <url>` works too. Deploy opens a browser for SSO login.
-To share the app with a customer, also change the app `id` in `app.config.json` if another
-version is already installed there.
+If another version of the app is already installed on that tenant under a different owner,
+change the app `id` in `app.config.json` first.
 
 ## Limitations
 

@@ -5,8 +5,8 @@ import { SIGNAL_META, type Signal } from "./signals";
 
 export interface ProjectionInput {
   signal: Signal;
-  pocVolumePerDay: number;
-  pocDriverCount: number;
+  currentVolumePerDay: number;
+  currentDriverCount: number;
   prodCount: number;
   multiplier: number;
   retentionDays: number;
@@ -15,7 +15,7 @@ export interface ProjectionInput {
 
 export interface ProjectionRow {
   signal: Signal;
-  pocPerDay: number;
+  currentPerDay: number;
   ratePerUnit: number | null;
   prodPerDay: number | null;
   prodPerMonth: number | null;
@@ -27,7 +27,7 @@ export interface ProjectionRow {
 }
 
 export function projectSignal(p: ProjectionInput): ProjectionRow {
-  const rate = ratePerUnit(p.pocVolumePerDay, p.pocDriverCount);
+  const rate = ratePerUnit(p.currentVolumePerDay, p.currentDriverCount);
   const daily = projectDaily(rate, p.prodCount, p.multiplier);
   const monthly = projectMonthly(daily);
   const rates = p.card.rates[p.signal];
@@ -38,7 +38,7 @@ export function projectSignal(p: ProjectionInput): ProjectionRow {
       : retainCost(daily, p.retentionDays, rates.includedRetentionDays, rates.retainPricePerGiBDay);
   return {
     signal: p.signal,
-    pocPerDay: p.pocVolumePerDay,
+    currentPerDay: p.currentVolumePerDay,
     ratePerUnit: rate,
     prodPerDay: daily,
     prodPerMonth: monthly,

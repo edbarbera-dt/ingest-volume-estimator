@@ -17,7 +17,7 @@ describe("buildProjection", () => {
     const p = buildProjection(inputs, detected, perDay, LIST_PRICES);
     const logs = p.rows.find((r) => r.signal === "logs");
     expect(logs?.driver).toBe("hosts");
-    expect(logs?.pocDriverCount).toBe(3);
+    expect(logs?.currentDriverCount).toBe(3);
     expect(logs?.prodCount).toBe(300);
     expect(logs?.prodPerDay).toBeCloseTo(70);
     const traces = p.rows.find((r) => r.signal === "traces");
@@ -40,7 +40,7 @@ describe("projectionCsv", () => {
     const csv = projectionCsv(buildProjection(inputs, detected, perDay, LIST_PRICES), "USD");
     const lines = csv.trim().split("\n");
     expect(lines[0]).toBe(
-      "signal,unit,driver,poc_per_day,poc_driver_count,rate_per_unit,prod_driver_count,prod_per_day,prod_per_month,ingest_cost_month_USD,retain_cost_month_USD,total_cost_month_USD",
+      "signal,unit,driver,current_per_day,current_driver_count,rate_per_unit,prod_driver_count,prod_per_day,prod_per_month,ingest_cost_month_USD,retain_cost_month_USD,total_cost_month_USD",
     );
     expect(lines).toHaveLength(6);
     expect(lines[1].startsWith("Logs,GiB,hosts,0.7,3,")).toBe(true);

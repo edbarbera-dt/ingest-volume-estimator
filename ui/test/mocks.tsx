@@ -60,3 +60,37 @@ export const chartsMock = () => {
   );
   return { SingleValue, TimeseriesChart, DonutChart, CategoricalBarChart };
 };
+
+/**
+ * Strato's Select virtualises its option list, so jsdom renders no options. This swaps it for a
+ * native <select> (role "combobox") with the same value/onChange contract; other form components stay real.
+ */
+export const formsWithNativeSelect = () => {
+  const actual = jest.requireActual<typeof import("@dynatrace/strato-components/forms")>("@dynatrace/strato-components/forms");
+  const Select = ({
+    value,
+    onChange,
+    children,
+  }: {
+    value?: string | null;
+    onChange?: (v: string | null) => void;
+    children?: React.ReactNode;
+  }) => (
+    <select value={value ?? ""} onChange={(e) => onChange?.(e.target.value)}>
+      {children}
+    </select>
+  );
+  Select.Content = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
+  Select.Option = ({ value, children }: { value: string; children?: React.ReactNode }) => (
+    <option value={value}>{children}</option>
+  );
+  return { ...actual, Select };
+};
+
+/** The AppEngine web runtime that supplies user preferences isn't available in jsdom. */
+export const userPreferencesMock = () => ({
+  getLanguage: () => "en",
+  getRegionalFormat: () => "en",
+  getTheme: () => "light",
+  getTimezone: () => "UTC",
+});

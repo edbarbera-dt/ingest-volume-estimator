@@ -162,3 +162,108 @@ describe("buildFlowGraph edge cases", () => {
     expect(g.nodes.find((n) => n.id === "fwd:logs:fw1")).toMatchObject({ kind: "destination", configuredOnly: true, label: "Splunk" });
   });
 });
+
+describe("buildFlowGraph routing and attribution", () => {
+  const route = (vals: number[], source: string, routeName: string, extra: Record<string, unknown> = {}) => ({
+    ...series(vals),
+    configuration: "logs",
+    "dt.openpipeline.source": source,
+    route_name: routeName,
+    ...extra,
+  });
+  const build = (routing: unknown[], out: unknown[], topology = emptyTopology()) =>
+    buildFlowGraph({ ...base, signal: "logs", topology, sources: [], routing, out });
+
+  it("merges rows for the same source and pipeline, listing each route name once", () => {
+    const t = parseTopology([
+      {
+        configuration: "logs",
+        pipelines: [{ objectId: "p1", value: { displayName: "P1" } }],
+        routing: [{ value: { routingEntries: [{ description: "r1", pipelineId: "p1" }, { description: "r2", pipelineId: "p1" }] } }],
+        ingestSources: [],
+        forwarding: [],
+      },
+    ]);
+    const g = build([route([1, 1], "oneagent", "r1"), route([2, 2], "oneagent", "r2"), route([3], "oneagent", "r1")], [], t);
+    const edges = g.edges.filter((e) => e.from === "src:logs:oneagent");
+    expect(edges).toHaveLength(1);
+    expect(edges[0]).toMatchObject({ to: "pipe:logs:p1", records: 9, routeName: "r1, r2" });
+    expect(edges[0].series).toEqual([6, 3]);
+    expect(edges[0].rate).toBeCloseTo(9 / 3600);
+  });
+
+  it("labels a route whose pipeline is not in settings by its key", () => {
+    const t = parseTopology([
+      {
+        configuration: "logs",
+        pipelines: [],
+        routing: [{ value: { routingEntries: [{ description: "r1", pipelineId: "gone" }] } }],
+        ingestSources: [],
+        forwarding: [],
+      },
+    ]);
+    const g = build([route([1], "oneagent", "r1")], [], t);
+    expect(g.nodes.find((n) => n.kind === "pipeline")).toMatchObject({ id: "pipe:logs:id:gone", label: "pipe:logs:id:gone", pipelineKey: undefined, builtin: false });
+  });
+
+  it("shows routes missing from settings as builtin pipelines named after the route", () => {
+    const g = build([route([1], "oneagent", "not configured"), route([1], "oneagent", "")], []);
+    const labels = g.nodes.filter((n) => n.kind === "pipeline").map((n) => n.label).sort();
+    expect(labels).toEqual(["(unknown route)", "not configured"]);
+  });
+
+  it("resolves a pipeline_id of default to the default pipeline", () => {
+    const g = build([route([1], "oneagent", "x", { pipeline_id: "default" })], []);
+    expect(g.nodes.find((n) => n.kind === "pipeline")).toMatchObject({ id: "pipe:logs:default", label: "Default pipeline", builtin: true });
+  });
+
+  it("sends output of a configuration without traffic to its only pipeline", () => {
+    const g = build([route([0], "oneagent", "default")], [{ ...series([5]), configuration: "logs", bucket_name: "default_logs" }]);
+    expect(g.edges.find((e) => e.to === "dest:default_logs")).toMatchObject({ from: "pipe:logs:default", records: 5, estimatedSplit: false });
+  });
+
+  it("marks output as unattributed when several pipelines have no inflow", () => {
+    const g = build(
+      [route([0], "oneagent", "a"), route([0], "oneagent", "b")],
+      [{ ...series([5]), configuration: "logs", bucket_name: "default_logs" }],
+    );
+    expect(g.nodes.find((n) => n.id === "pipe:logs:unattributed")).toMatchObject({ label: "Unattributed", builtin: true });
+    expect(g.edges.find((e) => e.to === "dest:default_logs")?.from).toBe("pipe:logs:unattributed");
+  });
+
+  it("marks output as unattributed when there is no routing at all", () => {
+    const g = build([], [{ ...series([5]), configuration: "logs", bucket_name: "default_logs" }]);
+    expect(g.edges.find((e) => e.to === "dest:default_logs")?.from).toBe("pipe:logs:unattributed");
+  });
+
+  it.each([
+    ["rumagent", "RUM agent", "rum"],
+    ["extension", "Extensions", "extension"],
+    ["com.dynatrace.extension.x", "com.dynatrace.extension.x", "extension"],
+    ["/api/v2/logs/ingest", "/api/v2/logs/ingest", "api"],
+    ["log_ingest-pipeline", "Log ingest pipeline", "internal"],
+  ])("labels source %s", (raw, label, type) => {
+    const g = build([route([1], raw, "default")], []);
+    expect(g.nodes.find((n) => n.kind === "source")).toMatchObject({ label, sourceType: type });
+  });
+
+  it("falls back to the window for start and to a one-minute interval without timeframe data", () => {
+    const g = buildFlowGraph({
+      ...base,
+      signal: "logs",
+      topology: emptyTopology(),
+      sources: [],
+      routing: [{ configuration: "logs", "dt.openpipeline.source": "oneagent", route_name: "default", r: [1] }],
+      out: [],
+    });
+    expect(g.intervalMs).toBe(60_000);
+    expect(Date.now() - g.start.getTime()).toBeGreaterThanOrEqual(3600 * 1000 - 1000);
+  });
+
+  it("returns an empty graph for non-array inputs", () => {
+    const g = buildFlowGraph({ ...base, signal: "logs", topology: emptyTopology(), sources: null, routing: "x", out: {} });
+    expect(g.nodes).toEqual([]);
+    expect(g.edges).toEqual([]);
+    expect(g.intervalMs).toBe(60_000);
+  });
+});

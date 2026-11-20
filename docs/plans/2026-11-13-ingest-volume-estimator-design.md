@@ -9,7 +9,7 @@ Dev tenant: `rkj7350h` (`https://rkj7350h.sprint.apps.dynatracelabs.com`, dtctl 
 A standalone Dynatrace platform app that shows how much data a tenant ingests per signal
 (logs, metrics, traces, events), what it costs, and what it would cost at production scale.
 
-- **SEs during a POC:** measure POC ingest and extrapolate production cost.
+- **Plan growth:** measure current ingest on a subset of the environment and extrapolate production cost.
 - **Customers after go-live:** baseline ingest, then measure the effect of optimisations.
 
 It takes inspiration from the QuickStart app but has no code or integration dependency on it.
@@ -30,7 +30,7 @@ with `npx dt-app deploy` for any other tenant.
 | App form | Standalone custom app (`dt-app`, React, Node 24) |
 | UI | Strato components only; colours from `@dynatrace/strato-design-tokens` |
 | Cost | Editable rate card, pre-filled with Dynatrace public list prices, overridable per tenant |
-| Extrapolation | Per-unit drivers derived from POC (per host / service / pod), plus an optional multiplier |
+| Extrapolation | Per-unit drivers derived from current ingest (per host / service / pod), plus an optional multiplier |
 | Baselines | Labelled snapshots stored in app state |
 
 ## Tenant findings (rkj7350h, 7 days to 2026-11-13)
@@ -69,7 +69,7 @@ because raw content length is smaller than billed bytes (billing also counts att
 ### Extrapolation
 
 ```
-rate_per_unit   = signal_volume_per_day / driver_count          (from the POC)
+rate_per_unit   = signal_volume_per_day / driver_count          (from current ingest)
 prod_volume_day = rate_per_unit * prod_driver_count * multiplier
 prod_cost_month = prod_volume_day * 30 * ingest_price
                 + retained_volume(retention_days) * retain_price
@@ -115,7 +115,7 @@ The user can change a signal's driver.
    - A `CategoricalBarChart` of the top 10 + a `DataTable` with % share.
    - A "Run breakdown" `Button` that shows an estimated scan cost first.
 3. **Extrapolate**
-   - Detected POC drivers, which the user can override.
+   - Detected current drivers, which the user can override.
    - Production counts, multiplier and retention days as `NumberInput`s.
    - Output: a `DataTable` with projected monthly volume and cost per signal and a total, plus CSV export.
 4. **Baselines**
