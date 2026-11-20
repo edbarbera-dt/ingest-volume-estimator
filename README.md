@@ -18,7 +18,7 @@ Design: [`docs/plans/2026-11-13-ingest-volume-estimator-design.md`](docs/plans/2
 | Page | What it shows |
 |---|---|
 | Overview | Volume, per-day volume and estimated cost per signal, change against the active baseline, daily ingest (volume or cost), cost share, and a table by bucket with retention and stored volume |
-| Signals | Top contributors per signal (log source / namespace / host, service, monitoring source / metric key, billing category / provider). Runs only when you click **Run breakdown**, after it shows an estimated scan size and query cost |
+| Signals | Top contributors per signal (log source / namespace / host, service, monitoring source / metric key, billing category / provider), plus any signal by a Primary Grail field or primary tag, with the share of data that lacks it. Runs only when you click **Run breakdown**, after it shows an estimated scan size and query cost |
 | Extrapolate | Detected current drivers (hosts, services, pods, clusters, containers) with overrides, a driver per signal, production counts, a multiplier and retention days. Shows a projected monthly volume and cost per signal, with CSV export |
 | Baselines | Labelled snapshots of per-day ingest and driver counts. Set one active for the Overview, or compare two |
 | Settings | The rate card: ingest price, retain price per GiB-day and included retention per signal, plus currency |
