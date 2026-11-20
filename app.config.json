@@ -3,7 +3,7 @@
   "environmentUrl": "https://sesandbox.apps.dynatrace.com/",
   "app": {
     "name": "Ingest Volume Estimator",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Estimate log, metric, trace and event ingest volume and cost at production scale",
     "id": "my.ingest.volume.estimator",
     "icon": "./ui/assets/logo.svg",
