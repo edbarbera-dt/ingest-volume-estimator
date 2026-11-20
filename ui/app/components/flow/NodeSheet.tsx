@@ -110,7 +110,7 @@ export const NodeSheet = ({ graph, nodeId, topology, window, mode, color, billin
                 </Text>
                 <Text>Retention: {retention.has(node.bucket) ? `${retention.get(node.bucket)} days` : "unknown"}</Text>
                 <Flex>
-                  <Button onClick={() => navigate("/")}>Open in Overview</Button>
+                  <Button onClick={() => void navigate("/")}>Open in Overview</Button>
                 </Flex>
               </>
             ) : (

@@ -22,6 +22,7 @@ module.exports = {
     // optional peer of the Strato AiResponse component, not used by this app
     "^streamdown$": "<rootDir>/ui/test/emptyModule.js",
   },
+  setupFiles: ["<rootDir>/ui/test/polyfills.ts"],
   setupFilesAfterEnv: ["<rootDir>/ui/test/setup.ts"],
   collectCoverageFrom: ["ui/app/**/*.{ts,tsx}", "!ui/app/**/*.test.{ts,tsx}", "!ui/app/**/__fixtures__/**"],
   // `npm run test:coverage` fails if coverage drops below these levels.
