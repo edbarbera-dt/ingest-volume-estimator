@@ -1,6 +1,6 @@
 {
   "name": "ingest-volume-estimator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Estimate log, metric, trace and event ingest volume and cost at production scale",
   "scripts": {
     "build": "dt-app build",
