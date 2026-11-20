@@ -1,5 +1,10 @@
 # Ingest Volume Estimator
 
+> [!WARNING]
+> **Not an official Dynatrace product.** Dynatrace does not support this app. You install and
+> use it at your own risk, and you take ownership of the source code and all maintenance from
+> then on. Read the [Disclaimer](#disclaimer) before you install it.
+
 > **Install it in your environment:** follow [DEPLOYMENT.md](DEPLOYMENT.md).
 
 A Dynatrace platform app that shows how much data a tenant ingests per signal (logs, metrics,
@@ -161,3 +166,29 @@ who can use it, updates, optional CI/CD deployment and troubleshooting.
   window may under-count. Bytes on the Flow page are estimates (see above).
 - Flow pipeline → bucket edges are estimated when several pipelines in one configuration are
   active and the metrics carry no `pipeline_id`.
+
+## Disclaimer
+
+**This app is not an official Dynatrace product and is not supported by Dynatrace.** It is
+sample code, shared as a convenience and provided "as is", without warranty of any kind,
+express or implied, including fitness for a particular purpose.
+
+By installing, deploying or using this app, you acknowledge and accept that:
+
+- **No support.** Dynatrace Support, product SLAs and the Dynatrace documentation don't cover
+  it. Don't raise support tickets with Dynatrace about it.
+- **You use it at your own risk.** You are responsible for reviewing the code, the scopes it
+  requests (see [Required scopes](#required-scopes)) and who in your organisation can use it,
+  before you deploy it to any environment.
+- **You own it.** Once you take a copy of this repository, you own that copy and everything
+  that follows from it. That includes maintenance, bug fixes, security patches, dependency
+  upgrades, and keeping it working as the Dynatrace platform, SDKs and Strato components change.
+  Nobody is obliged to provide updates.
+- **Figures are estimates.** Volume, cost and projection figures are estimates for planning.
+  They are not quotes, invoices or contractual commitments. Your Dynatrace contract and billing
+  data are authoritative.
+- **No liability.** To the maximum extent permitted by law, neither Dynatrace nor the authors
+  are liable for any loss, damage, cost or claim arising from installing or using this app,
+  including any effect on your Dynatrace environment, data or consumption.
+
+If you don't accept these terms, don't install the app.

@@ -3,6 +3,11 @@
 This guide takes you from a fresh clone of this repository to the app running in your own
 Dynatrace environment. You don't need to change any code.
 
+> [!WARNING]
+> This app is not an official Dynatrace product and is not supported by Dynatrace. By deploying
+> it you accept the [Disclaimer](README.md#disclaimer): you install it at your own risk, and you
+> own the source code and its maintenance from then on.
+
 ## 1. Check your environment
 
 | Requirement | Why |
