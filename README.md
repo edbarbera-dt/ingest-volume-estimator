@@ -18,6 +18,12 @@ production scale.
 
 Design: [`docs/plans/2026-11-13-ingest-volume-estimator-design.md`](docs/plans/2026-11-13-ingest-volume-estimator-design.md)
 
+## Demo
+
+<video src="docs/media/demo.mp4" controls muted width="100%">
+  Your viewer does not play embedded video. <a href="docs/media/demo.mp4">Watch the demo (MP4)</a>.
+</video>
+
 ## Pages
 
 | Page | What it shows |
