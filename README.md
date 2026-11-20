@@ -143,7 +143,7 @@ before you commit them.
 ## Deploy
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for installing the app in your own environment: prerequisites,
-IAM policies for users, updates, CI/CD deployment and troubleshooting.
+who can use it, updates, optional CI/CD deployment and troubleshooting.
 
 ## Limitations
 

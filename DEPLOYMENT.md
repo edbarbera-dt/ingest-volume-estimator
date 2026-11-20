@@ -99,37 +99,27 @@ Open your deployed app: 'https://<tenant-id>.apps.dynatrace.com/ui/apps/my.inges
 
 You'll also find the app in the Dynatrace launcher under **Ingest Volume Estimator**.
 
-## 7. Give users access
+## 7. Who can use it
 
-Users need permission to run the app and to read the data it queries. Create an IAM policy and
-bind it to a group, for example "Ingest Volume Estimator users":
+The app is built for Dynatrace environment administrators. It reports ingest and cost across the
+whole environment, so it needs to read all billing, log, trace, metric, event and Smartscape data.
+Administrators already have every permission it needs, so you don't need any extra IAM
+configuration.
 
-```text
-ALLOW app-engine:apps:run WHERE shared:app-id = "my.ingest.volume.estimator";
-ALLOW storage:system:read, storage:buckets:read, storage:smartscape:read;
-ALLOW storage:logs:read, storage:spans:read, storage:metrics:read, storage:events:read;
-ALLOW state:app-states:read, state:app-states:write;
-ALLOW settings:objects:read;
-```
+If someone without full access opens the app, each affected tile names the missing permission.
+For reference, the app uses:
 
-If you changed the app ID in step 5, use your ID in the first line.
+| Permission | Used for |
+|---|---|
+| `storage:system:read` | All volume and cost figures (billing events) |
+| `storage:buckets:read` | Bucket retention on the Overview |
+| `storage:smartscape:read` | Host, service, pod, cluster and container counts |
+| `storage:logs:read`, `storage:spans:read`, `storage:metrics:read`, `storage:events:read` | Breakdowns on the Signals page |
+| `state:app-states:read` / `write` | Saving the rate card, baselines and extrapolation inputs |
+| `settings:objects:read` | OpenPipeline names and details on the Flow page |
 
-| Permission | Needed for | Without it |
-|---|---|---|
-| `storage:system:read` | All volume and cost figures (billing events) | Overview, Extrapolate and Baselines show a missing-scope message |
-| `storage:buckets:read` | Bucket retention on the Overview | The bucket table shows a missing-scope message |
-| `storage:smartscape:read` | Host, service, pod, cluster and container counts | Extrapolate can't detect drivers |
-| `storage:logs:read`, `storage:spans:read`, `storage:metrics:read`, `storage:events:read` | Breakdowns on the Signals page | That signal's breakdown shows a missing-scope message |
-| `state:app-states:read` / `write` | The rate card, baselines and extrapolation inputs | Users can't save; list prices are used |
-| `settings:objects:read` | OpenPipeline names and details on the Flow page | Flow still draws, with raw route and pipeline IDs |
-
-Notes:
-
-- **Bucket and record restrictions apply.** If your policies limit `storage:*:read` to certain
-  buckets or records, breakdowns only count what the user can see.
-- **Saved data is shared.** The rate card, baselines and extrapolation inputs are stored once per
-  environment and shared by all users of the app. To make the app read-only for some users,
-  leave out `state:app-states:write` for them.
+The rate card, baselines and extrapolation inputs are saved once per environment, so every
+administrator who uses the app sees and edits the same values.
 
 ## 8. First-time setup
 
@@ -156,9 +146,10 @@ you change the code yourself, raise `app.version` in `app.config.json` (for exam
 Cannot install app with version 1.0.1 because the same version is already installed with a different checksum.
 ```
 
-## Deploying from a pipeline (no browser)
+## Optional: deploying from a pipeline (no browser)
 
-For CI/CD, `dt-app` can authenticate without SSO. Set one of these:
+You only need this if you change the code often and want to deploy automatically. For
+CI/CD, `dt-app` can authenticate without SSO. Set one of these:
 
 | Variable | Value |
 |---|---|
@@ -189,8 +180,9 @@ This writes a `.zip` bundle to `out/`.
 npx dt-app uninstall --environment-url https://<tenant-id>.apps.dynatrace.com
 ```
 
-Uninstalling removes the app. Its saved rate card, baselines and inputs may be deleted with it,
-so note down your rate card and export any projections (CSV) you need first.
+Uninstalling removes the app and its app state. That is the only place the app saves the rate card,
+baselines and extrapolation inputs, so they are deleted too. Note down your rate card and export any
+projections (CSV) you need before you uninstall.
 
 ## Troubleshooting
 
@@ -199,8 +191,8 @@ so note down your rate card and export any projections (CSV) you need first.
 | `node: command not found`, or an engine warning about Node | Install Node 24 (step 3) |
 | Deploy fails with "same version is already installed with a different checksum" | Raise `app.version` in `app.config.json` (see "Updating to a new version") |
 | Deploy fails with a permission or authorization error | You don't have `app-engine:apps:install` (step 2) |
-| The browser doesn't open for SSO | Open the URL printed in the terminal by hand, or use pipeline authentication |
-| A tile says a scope or permission is missing | Add that permission to the user's policy (step 7) |
+| The browser doesn't open for SSO | Open the URL printed in the terminal by hand, or use pipeline deployment |
+| A tile says a scope or permission is missing | The user isn't a full administrator. Grant the named permission (step 7) or use an admin account |
 | All volumes are 0 | The environment has no DPS billing events yet, or the timeframe is too short. Try the last 7 days |
 | Metrics look low for the last few hours | Metrics billing arrives about 4 hours late (see Limitations in the README) |
 | A breakdown on the Signals page is slow or costly | Breakdowns scan raw data. Check the scan estimate before you click **Run breakdown**, and use a shorter timeframe |
