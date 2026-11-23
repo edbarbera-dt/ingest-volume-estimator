@@ -6,6 +6,7 @@
 > then on. Read the [Disclaimer](#disclaimer) before you install it.
 
 > **Install it in your environment:** follow [DEPLOYMENT.md](DEPLOYMENT.md).
+> **What changed:** see [CHANGELOG.md](CHANGELOG.md).
 
 A Dynatrace platform app that shows how much data a tenant ingests per signal (logs, metrics,
 traces, events), what it costs at list price (or your rate card), and what it would cost at
