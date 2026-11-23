@@ -48,8 +48,6 @@ const projectedCost = () => {
 };
 const input = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const type = (label: string, value: string) => fireEvent.change(input(label), { target: { value } });
-/** Signal driver pickers, in SIGNALS order: logs, traces, metrics, events. */
-const driverPicker = (i: number) => document.querySelectorAll("select")[i];
 /** The last saved inputs, after the auto-save debounce. */
 const lastSaved = () => {
   act(() => {
@@ -61,19 +59,63 @@ const lastSaved = () => {
 };
 
 describe("Extrapolate", () => {
-  it("prefills production with current counts and projects a monthly cost", () => {
+  it("seeds a Current environment unit that reproduces today's cost", () => {
     (useAppState as jest.Mock).mockImplementation(stateFor(undefined));
     render();
     expect(screen.getByText(/Projected monthly cost: \$/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Export CSV/ })).toBeInTheDocument();
     expect(screen.getByText("Hosts (detected 3)")).toBeInTheDocument();
+    expect(input("Unit name").value).toBe("Current environment");
+    expect(input("Current environment Hosts").value).toBe("3");
+    expect(screen.getByText(/Current: \$[0-9.,]+ \/ month \(\+0%\)/)).toBeInTheDocument();
+    expect(screen.getByText("3. Cost per driver")).toBeInTheDocument();
   });
 
-  it("greys out a signal whose driver count is 0 and prompts for a manual value", () => {
-    const inputs = { ...defaultInputs(), drivers: { ...defaultInputs().drivers, logs: "pods" }, prodCounts: { hosts: 30, services: 110, pods: 100, clusters: 0, containers: 0 } };
-    (useAppState as jest.Mock).mockImplementation(stateFor(inputs));
+  it("scales the projection with unit quantity, driver counts and traffic factor", () => {
+    (useAppState as jest.Mock).mockImplementation(stateFor(undefined));
     render();
-    expect(screen.getByText(/driver count of 0/)).toBeInTheDocument();
+    const base = projectedCost();
+    expect(base).toBeGreaterThan(0);
+
+    type("Current environment quantity", "3");
+    expect(projectedCost()).toBeCloseTo(base * 3, 1);
+
+    type("Current environment quantity", "1");
+    type("Current environment traffic factor", "2");
+    expect(projectedCost()).toBeCloseTo(base * 2, 1);
+
+    type("Current environment traffic factor", "1");
+    type("Current environment Hosts", "30");
+    expect(projectedCost()).toBeGreaterThan(base);
+  });
+
+  it("adds, duplicates and removes units, and saves them", () => {
+    jest.useFakeTimers();
+    (useAppState as jest.Mock).mockImplementation(stateFor(undefined));
+    render();
+    const base = projectedCost();
+
+    fireEvent.click(screen.getByRole("button", { name: /Duplicate Current environment/ }));
+    expect(projectedCost()).toBeCloseTo(base * 2, 1);
+    expect(lastSaved().units.map((u) => u.name)).toEqual(["Current environment", "Current environment (copy)"]);
+
+    fireEvent.click(screen.getByRole("button", { name: /Remove Current environment \(copy\)/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Add unit$/ }));
+    expect(projectedCost()).toBeCloseTo(base, 1);
+    type("Unit 2 K8s clusters", "1");
+    expect(lastSaved().units[1]).toMatchObject({ name: "Unit 2", counts: { clusters: 1 } });
+  });
+
+  it("warns when volume is attributed to a driver with no current count, until a count is set", () => {
+    jest.useFakeTimers();
+    (useAppState as jest.Mock).mockImplementation(stateFor(undefined));
+    render();
+    type("Logs % from K8s pods", "50");
+    expect(screen.getByText(/attributed to k8s pods, but the current count is 0/)).toBeInTheDocument();
+    expect(lastSaved().attribution.logs).toEqual({ hosts: 100, pods: 50 });
+
+    type("Current K8s pods", "10");
+    expect(screen.queryByText(/current count is 0/)).not.toBeInTheDocument();
   });
 
   it("names missing scopes", () => {
@@ -83,27 +125,13 @@ describe("Extrapolate", () => {
     expect(screen.getAllByText(/storage:smartscape:read/).length).toBeGreaterThan(0);
   });
 
-  it("scales the projection with production counts and the multiplier", () => {
-    (useAppState as jest.Mock).mockImplementation(stateFor(undefined));
-    render();
-    const base = projectedCost();
-    expect(base).toBeGreaterThan(0);
-
-    type("Production Hosts", "30");
-    const moreHosts = projectedCost();
-    expect(moreHosts).toBeGreaterThan(base);
-
-    type("Multiplier", "2");
-    expect(projectedCost()).toBeCloseTo(moreHosts * 2, 1);
-  });
-
   it("applies a current driver override, and drops it when set back to the detected count", () => {
     jest.useFakeTimers();
     (useAppState as jest.Mock).mockImplementation(stateFor(undefined));
     render();
     const base = projectedCost();
 
-    // Twice the hosts for the same volume halves the per-host rate, so host-driven cost falls.
+    // Twice the hosts for the same volume halves the per-host cost; the unit still has 3 hosts.
     type("Current Hosts", "6");
     expect(projectedCost()).toBeLessThan(base);
     expect(lastSaved().driverOverrides).toEqual({ hosts: 6 });
@@ -121,24 +149,6 @@ describe("Extrapolate", () => {
       jest.advanceTimersByTime(5000);
     });
     expect(execute).not.toHaveBeenCalled();
-  });
-
-  it("switches the driver a signal scales with", () => {
-    jest.useFakeTimers();
-    (useAppState as jest.Mock).mockImplementation(stateFor(undefined));
-    render();
-    expect(driverPicker(0).value).toBe("hosts");
-    expect(screen.queryByLabelText("Production K8s pods")).not.toBeInTheDocument();
-
-    fireEvent.change(driverPicker(0), { target: { value: "pods" } });
-
-    // No pods in the fixture tenant: logs can't be projected until a count is entered.
-    expect(screen.getByLabelText("Production K8s pods")).toBeInTheDocument();
-    expect(screen.getByText(/driver count of 0/)).toBeInTheDocument();
-    expect(lastSaved().drivers.logs).toBe("pods");
-
-    type("Current K8s pods", "10");
-    expect(screen.queryByText(/driver count of 0/)).not.toBeInTheDocument();
   });
 
   it("saves edited retention days", () => {
@@ -175,18 +185,25 @@ describe("Extrapolate", () => {
       reader.onload = () => resolve(String(reader.result));
       reader.readAsText(blob as Blob);
     });
-    const lines = text.trim().split("\n");
-    expect(lines[0]).toMatch(/^signal,unit,driver,current_per_day,current_driver_count,/);
-    expect(lines).toHaveLength(1 + 4 + 1); // header, one row per signal, total
+    expect(text).toMatch(/^signal,unit,current_per_day,/);
+    expect(text).toContain("\ncost_unit,quantity,traffic_factor,");
+    expect(text).toContain("Current environment,1,1,3,");
     expect(text).not.toMatch(/poc/i);
   });
 
-  it("loads driver overrides saved by versions before 1.0.0", () => {
-    const legacy = { ...defaultInputs(), prodCounts: { hosts: 30, services: 110, pods: 0, clusters: 0, containers: 0 }, pocOverrides: { hosts: 6 } };
-    delete (legacy as Partial<typeof legacy>).driverOverrides;
+  it("migrates inputs saved by earlier versions into a Production unit", () => {
+    const legacy = {
+      drivers: { logs: "hosts", traces: "services", metrics: "hosts", events: "hosts" },
+      prodCounts: { hosts: 30, services: 110, pods: 0, clusters: 0, containers: 0 },
+      pocOverrides: { hosts: 6 },
+      multiplier: 1.3,
+      retentionDays: { logs: 35, traces: 10, metrics: 462, events: 35 },
+    };
     (useAppState as jest.Mock).mockImplementation(stateFor(legacy));
     render();
     expect(input("Current Hosts").value).toBe("6");
+    expect(input("Unit name").value).toBe("Production");
     expect(input("Production Hosts").value).toBe("30");
+    expect(input("Production traffic factor").value).toBe("1.3");
   });
 });
