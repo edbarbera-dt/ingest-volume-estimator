@@ -85,16 +85,24 @@ export const LIST_PRICES: RateCard = {
   },
 };
 
-/** Converts every price in the card to `to`; retention days are unchanged. */
-export function convertRateCard(card: RateCard, to: CurrencyCode): RateCard {
+/** Rounds to 2 decimal places (ingest prices are quoted per GiB / per 100k data points). */
+export const roundPrice = (n: number): number => Math.round(n * 100) / 100;
+
+/** Rounds to 4 significant figures: retain prices per GiB-day are fractions of a cent. */
+export const roundSmallPrice = (n: number): number => (n === 0 ? 0 : Number(n.toPrecision(4)));
+
+const close = (a: number | null, b: number | null) =>
+  a === null || b === null ? a === b : Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
+
+function convertRaw(card: RateCard, to: CurrencyCode): RateCard {
   const factor = CURRENCIES[to].perUsd / CURRENCIES[card.currency].perUsd;
   const rates = {} as Record<Signal, SignalRates>;
   for (const s of SIGNALS) {
     const r = card.rates[s];
     rates[s] = {
-      ingestPrice: r.ingestPrice * factor,
+      ingestPrice: roundPrice(r.ingestPrice * factor),
       retainPricePerGiBDay:
-        r.retainPricePerGiBDay === null ? null : r.retainPricePerGiBDay * factor,
+        r.retainPricePerGiBDay === null ? null : roundSmallPrice(r.retainPricePerGiBDay * factor),
       includedRetentionDays: r.includedRetentionDays,
     };
   }
@@ -102,7 +110,28 @@ export function convertRateCard(card: RateCard, to: CurrencyCode): RateCard {
 }
 
 export function listPricesFor(currency: CurrencyCode): RateCard {
-  return convertRateCard(LIST_PRICES, currency);
+  return convertRaw(LIST_PRICES, currency);
+}
+
+/**
+ * Converts every price in the card to `to`, rounded so floating-point noise from the exchange
+ * rate never shows (ingest to 2 dp, retain to 4 significant figures). A price still at the list
+ * price becomes the list price in `to`, so switching currencies back and forth does not drift.
+ * Retention days are unchanged.
+ */
+export function convertRateCard(card: RateCard, to: CurrencyCode): RateCard {
+  const fromList = listPricesFor(card.currency);
+  const toList = listPricesFor(to);
+  const converted = convertRaw(card, to);
+  for (const s of SIGNALS) {
+    const r = card.rates[s];
+    const out = converted.rates[s];
+    if (close(r.ingestPrice, fromList.rates[s].ingestPrice)) out.ingestPrice = toList.rates[s].ingestPrice;
+    if (close(r.retainPricePerGiBDay, fromList.rates[s].retainPricePerGiBDay)) {
+      out.retainPricePerGiBDay = toList.rates[s].retainPricePerGiBDay;
+    }
+  }
+  return converted;
 }
 
 /**
@@ -136,9 +165,6 @@ export function mergeRateCard(stored: unknown): RateCard {
   }
   return { currency, rates };
 }
-
-const close = (a: number | null, b: number | null) =>
-  a === null || b === null ? a === b : Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
 
 /** True while every value equals the list price in the card's currency. */
 export function isListPrice(card: RateCard): boolean {

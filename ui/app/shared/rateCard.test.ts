@@ -134,3 +134,22 @@ describe("currencies", () => {
     expect(back.rates.metrics.ingestPrice).toBeCloseTo(0.15);
   });
 });
+
+describe("convertRateCard rounding", () => {
+  it("rounds ingest prices to 2 dp and retain prices to 4 significant figures", () => {
+    const eur = convertRateCard(LIST_PRICES, "EUR");
+    expect(eur.rates.logs.ingestPrice).toBe(0.17);
+    expect(eur.rates.metrics.ingestPrice).toBe(0.13);
+    expect(eur.rates.logs.retainPricePerGiBDay).toBe(0.0006104);
+  });
+
+  it("returns to clean list prices after switching currencies back and forth", () => {
+    let card = LIST_PRICES;
+    for (const c of ["GBP", "JPY", "EUR", "IDR", "USD"] as const) card = convertRateCard(card, c);
+    expect(card.rates.logs.ingestPrice).toBe(0.2);
+    expect(card.rates.metrics.ingestPrice).toBe(0.15);
+    for (const s of Object.keys(card.rates) as (keyof typeof card.rates)[]) {
+      expect(String(card.rates[s].ingestPrice)).toMatch(/^\d+(\.\d{1,2})?$/);
+    }
+  });
+});
