@@ -16,7 +16,7 @@ jest.mock("@dynatrace/strato-components/charts", () => jest.requireActual<typeof
 const SUBTITLES: Record<string, RegExp> = {
   "/": /Estimated cost for this timeframe/,
   "/signals": /Top contributors per signal/,
-  "/extrapolate": /Scale current ingest to production/,
+  "/extrapolate": /scale units of them up or down/,
   "/baselines": /Save snapshots of ingest and drivers/,
   "/flow": /OpenPipeline: sources → pipelines → destinations/,
   "/settings": /Rate card used for every cost estimate/,

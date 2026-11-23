@@ -1,40 +1,51 @@
-import { defaultInputs, parseInputs } from "./inputs";
+import { defaultInputs, newUnit, parseInputs } from "./inputs";
 
-describe("extrapolation inputs", () => {
-  it("defaults to the design drivers and a multiplier of 1", () => {
-    const d = defaultInputs();
-    expect(d.drivers).toEqual({ logs: "hosts", traces: "services", metrics: "hosts", events: "hosts" });
-    expect(d.multiplier).toBe(1);
-    expect(d.driverOverrides).toEqual({});
+describe("parseInputs", () => {
+  it("defaults each signal to 100% of its default driver, with no units", () => {
+    const d = parseInputs(undefined);
+    expect(d.version).toBe(2);
+    expect(d.attribution).toEqual({ logs: { hosts: 100 }, traces: { services: 100 }, metrics: { hosts: 100 }, events: { hosts: 100 } });
+    expect(d.units).toEqual([]);
+    expect(parseInputs("not json")).toEqual(defaultInputs());
   });
-  it("falls back to defaults for corrupt input", () => {
-    expect(parseInputs("nope")).toEqual(defaultInputs());
-    expect(parseInputs(null)).toEqual(defaultInputs());
+
+  it("round-trips version 2 inputs and drops invalid values", () => {
+    const unit = { ...newUnit({ name: "Prod cluster" }), counts: { hosts: 8, services: 20, pods: 150, clusters: 1, containers: 300 }, quantity: 4, trafficFactor: 1.3 };
+    const raw = {
+      ...defaultInputs(),
+      attribution: { logs: { hosts: 60, pods: 40, clusters: -5 }, traces: "x" },
+      units: [unit, null, { name: "Bad", quantity: -1, counts: { hosts: "3" } }],
+      driverOverrides: { pods: 10, hosts: -1 },
+    };
+    const p = parseInputs(JSON.stringify(raw));
+    expect(p.attribution.logs).toEqual({ hosts: 60, pods: 40 });
+    expect(p.attribution.traces).toEqual({ services: 100 });
+    expect(p.units).toHaveLength(2);
+    expect(p.units[0]).toEqual(unit);
+    expect(p.units[1]).toMatchObject({ name: "Bad", quantity: 1, trafficFactor: 1, counts: { hosts: 0 } });
+    expect(p.driverOverrides).toEqual({ pods: 10 });
   });
-  it("keeps valid values and drops invalid ones", () => {
-    const p = parseInputs({
-      drivers: { logs: "pods", traces: "nonsense" },
-      driverOverrides: { hosts: 5, pods: -1 },
-      prodCounts: { hosts: 200, services: "x" },
+
+  it("migrates version 1 inputs to an attribution and one Production unit", () => {
+    const v1 = {
+      drivers: { logs: "pods", traces: "services", metrics: "hosts", events: "bogus" },
+      pocOverrides: { hosts: 6 },
+      prodCounts: { hosts: 30, services: 110, pods: 0, clusters: 0, containers: 0 },
       multiplier: 1.5,
-      retentionDays: { logs: 90, traces: -3 },
-    });
-    expect(p.drivers.logs).toBe("pods");
-    expect(p.drivers.traces).toBe("services");
-    expect(p.driverOverrides).toEqual({ hosts: 5 });
-    expect(p.prodCounts.hosts).toBe(200);
-    expect(p.prodCounts.services).toBe(defaultInputs().prodCounts.services);
-    expect(p.multiplier).toBe(1.5);
+      retentionDays: { logs: 90 },
+    };
+    const p = parseInputs(v1);
+    expect(p.attribution.logs).toEqual({ pods: 100 });
+    expect(p.attribution.events).toEqual({ hosts: 100 });
+    expect(p.driverOverrides).toEqual({ hosts: 6 });
     expect(p.retentionDays.logs).toBe(90);
-    expect(p.retentionDays.traces).toBe(defaultInputs().retentionDays.traces);
+    expect(p.retentionDays.traces).toBe(10);
+    expect(p.units).toEqual([
+      { id: "u-production", name: "Production", counts: v1.prodCounts, quantity: 1, trafficFactor: 1.5 },
+    ]);
   });
-  it("reads overrides saved under the pre-1.0 key", () => {
-    expect(parseInputs({ pocOverrides: { hosts: 4, pods: -2 } }).driverOverrides).toEqual({ hosts: 4 });
-  });
-  it("prefers the current overrides key over the pre-1.0 key", () => {
-    expect(parseInputs({ driverOverrides: { hosts: 1 }, pocOverrides: { hosts: 9 } }).driverOverrides).toEqual({ hosts: 1 });
-  });
-  it("accepts a multiplier of 0", () => {
-    expect(parseInputs({ multiplier: 0 }).multiplier).toBe(0);
+
+  it("migrates version 1 inputs without production counts to no units", () => {
+    expect(parseInputs({ prodCounts: { hosts: 0 }, multiplier: 2 }).units).toEqual([]);
   });
 });

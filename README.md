@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/41c32bd0-2134-4240-a16b-ae31c4a435ee
 |---|---|
 | Overview | Volume, per-day volume and estimated cost per signal, change against the active baseline, daily ingest (volume or cost), cost share, and a table by bucket with retention and stored volume |
 | Signals | Top contributors per signal (log source / namespace / host, service, monitoring source / metric key, billing category / provider), plus any signal by a Primary Grail field or primary tag, with the share of data that lacks it. Runs only when you click **Run breakdown**, after it shows an estimated scan size and query cost |
-| Extrapolate | Detected current drivers (hosts, services, pods, clusters, containers) with overrides, a driver per signal, production counts, a multiplier and retention days. Shows a projected monthly volume and cost per signal, with CSV export |
+| Extrapolate | Detected current drivers (hosts, services, pods, clusters, containers) with overrides, and a percent split of each signal across those drivers. Derives the monthly cost of one host, pod, cluster and so on, then projects cost from user-defined **cost units** (bundles of drivers with a quantity and traffic factor) that you scale up or down. Shows projected volume and cost per signal against today, with CSV export |
 | Baselines | Labelled snapshots of per-day ingest and driver counts. Set one active for the Overview, or compare two |
 | Settings | The rate card: ingest price, retain price per GiB-day and included retention per signal, plus currency |
 | Flow | OpenPipeline sources → pipelines → destinations per signal (LOGS / METRICS / TRACES / EVENTS) over 5m, 1h or 24h. Edges show ~GiB/s or records/s; hover a node to trace its paths, click it for details |
@@ -43,14 +43,20 @@ https://github.com/user-attachments/assets/41c32bd0-2134-4240-a16b-ae31c4a435ee
 
 Tier 1 is the source of truth for volume and cost. Tier 3 only splits volume into shares.
 
-Extrapolation, per signal:
+Extrapolation:
 
 ```
-rate_per_unit    = current volume per day / current driver count
-prod_per_day     = rate_per_unit × production driver count × multiplier
-ingest_cost/mo   = prod_per_day × 30 × ingest price
-retain_cost/mo   = prod_per_day × max(0, retention − included days) × retain price × 30
+share[s][d]        = weight of driver d for signal s / sum of signal s weights
+per_driver[s][d]   = current volume per day of s × share[s][d] / current count of d
+unit_volume[s]     = traffic factor × Σ_d unit count of d × per_driver[s][d]
+prod_per_day[s]    = Σ_units quantity × unit_volume[s]
+ingest_cost/mo     = prod_per_day × 30 × ingest price
+retain_cost/mo     = prod_per_day × max(0, retention − included days) × retain price × 30
 ```
+
+Cost is linear in volume, so the cost of one unit × quantity adds up to the total, and a unit equal
+to the current driver counts reproduces today's cost. Inputs saved before units existed become a
+single "Production" unit with the old production counts and multiplier.
 
 All DQL lives in [`ui/app/queries/`](ui/app/queries/). The maths lives in [`ui/app/shared/`](ui/app/shared/)
 as pure functions with Jest tests.

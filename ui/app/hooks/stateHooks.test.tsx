@@ -127,12 +127,12 @@ describe("useRateCard reset", () => {
 
 describe("useExtrapolationInputs", () => {
   it("loads saved inputs and saves under the extrapolation-inputs key", async () => {
-    mockUseAppState.mockReturnValue(stored({ ...defaultInputs(), multiplier: 2 }));
+    mockUseAppState.mockReturnValue(stored({ ...defaultInputs(), retentionDays: { ...defaultInputs().retentionDays, logs: 90 } }));
     const { result } = renderHook(() => useExtrapolationInputs());
-    expect(result.current.value.multiplier).toBe(2);
-    await act(() => result.current.save({ ...result.current.value, multiplier: 3 }));
+    expect(result.current.value.retentionDays.logs).toBe(90);
+    await act(() => result.current.save({ ...result.current.value, retentionDays: { ...result.current.value.retentionDays, logs: 120 } }));
     expect((execute.mock.calls[0] as [{ key: string }])[0].key).toBe("extrapolation-inputs");
-    expect(savedBody()).toMatchObject({ multiplier: 3 });
+    expect(savedBody()).toMatchObject({ version: 2, retentionDays: { logs: 120 } });
   });
 });
 

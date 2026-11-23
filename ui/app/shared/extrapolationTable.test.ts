@@ -1,9 +1,15 @@
-import { buildProjection, effectiveDrivers, projectionCsv } from "./extrapolationTable";
-import { defaultInputs } from "./inputs";
+import { buildProjection, driverRates, effectiveDrivers, normaliseAttribution, projectionCsv } from "./extrapolationTable";
+import { defaultInputs, newUnit, type ExtrapolationInputs } from "./inputs";
 import { LIST_PRICES } from "./rateCard";
 
 const detected = { hosts: 3, services: 11, pods: 0, clusters: 0, containers: 15 };
 const perDay = { logs: 0.7, traces: 8.4, metrics: 314_000, events: 0.0004 };
+
+const withUnits = (units: ExtrapolationInputs["units"], p: Partial<ExtrapolationInputs> = {}): ExtrapolationInputs => ({
+  ...defaultInputs(),
+  units,
+  ...p,
+});
 
 describe("effectiveDrivers", () => {
   it("uses overrides over detected counts", () => {
@@ -11,49 +17,82 @@ describe("effectiveDrivers", () => {
   });
 });
 
-describe("buildProjection", () => {
-  it("projects every signal using its chosen driver", () => {
-    const inputs = { ...defaultInputs(), prodCounts: { hosts: 300, services: 110, pods: 0, clusters: 0, containers: 0 } };
-    const p = buildProjection(inputs, detected, perDay, LIST_PRICES);
-    const logs = p.rows.find((r) => r.signal === "logs");
-    expect(logs?.driver).toBe("hosts");
-    expect(logs?.currentDriverCount).toBe(3);
-    expect(logs?.prodCount).toBe(300);
-    expect(logs?.prodPerDay).toBeCloseTo(70);
-    const traces = p.rows.find((r) => r.signal === "traces");
-    expect(traces?.prodPerDay).toBeCloseTo(84);
-    expect(p.total.totalCost).toBeCloseTo(p.rows.reduce((a, r) => a + r.totalCost, 0));
+describe("normaliseAttribution", () => {
+  it("turns weights into fractions", () => {
+    expect(normaliseAttribution({ hosts: 3, pods: 1 })).toMatchObject({ hosts: 0.75, pods: 0.25, clusters: 0 });
+    expect(normaliseAttribution({})).toMatchObject({ hosts: 0, pods: 0 });
+  });
+});
+
+describe("driverRates", () => {
+  it("splits a signal's volume across drivers by weight and count", () => {
+    const attribution = { ...defaultInputs().attribution, logs: { hosts: 60, containers: 40 } };
+    const rates = driverRates(attribution, detected, perDay, defaultInputs().retentionDays, LIST_PRICES);
+    const hosts = rates.find((r) => r.driver === "hosts");
+    const containers = rates.find((r) => r.driver === "containers");
+    expect(hosts?.perDay.logs).toBeCloseTo((0.7 * 0.6) / 3);
+    expect(containers?.perDay.logs).toBeCloseTo((0.7 * 0.4) / 15);
+    expect(hosts?.cost.totalCost).toBeGreaterThan(0);
   });
 
-  it("disables a signal whose driver count is 0 and leaves it out of the total", () => {
-    const inputs = { ...defaultInputs(), drivers: { ...defaultInputs().drivers, logs: "pods" as const }, prodCounts: { hosts: 30, services: 11, pods: 100, clusters: 0, containers: 0 } };
+  it("flags a driver with no current count that has volume attributed to it", () => {
+    const attribution = { ...defaultInputs().attribution, logs: { pods: 100 } };
+    const pods = driverRates(attribution, detected, perDay, defaultInputs().retentionDays, LIST_PRICES).find(
+      (r) => r.driver === "pods",
+    );
+    expect(pods?.unrated).toBe(true);
+    expect(pods?.perDay.logs).toBeNull();
+  });
+});
+
+describe("buildProjection", () => {
+  it("reproduces current cost with one unit equal to the current environment", () => {
+    const p = buildProjection(withUnits([newUnit({ counts: { ...detected } })]), detected, perDay, LIST_PRICES);
+    expect(p.total.totalCost).toBeCloseTo(p.currentTotal.totalCost, 9);
+    for (const r of p.rows) expect(r.prodPerDay).toBeCloseTo(r.currentPerDay, 9);
+  });
+
+  it("scales linearly with quantity and traffic factor, and units sum to the total", () => {
+    const a = newUnit({ name: "A", counts: { ...detected } });
+    const base = buildProjection(withUnits([a]), detected, perDay, LIST_PRICES).total.totalCost;
+    const p = buildProjection(
+      withUnits([{ ...a, quantity: 3 }, newUnit({ name: "B", counts: { ...detected }, trafficFactor: 2 })]),
+      detected,
+      perDay,
+      LIST_PRICES,
+    );
+    expect(p.total.totalCost).toBeCloseTo(base * 5, 6);
+    expect(p.units[0].subtotal.totalCost).toBeCloseTo(base * 3, 6);
+    expect(p.units.reduce((s, u) => s + u.subtotal.totalCost, 0)).toBeCloseTo(p.total.totalCost, 6);
+    expect(p.projectedCounts.hosts).toBe(12);
+  });
+
+  it("adds cost for extra pods only when a signal is attributed to pods", () => {
+    const inputs = withUnits([newUnit({ counts: { ...detected, pods: 10 } })], {
+      driverOverrides: { pods: 5 },
+      attribution: { ...defaultInputs().attribution, logs: { hosts: 50, pods: 50 } },
+    });
     const p = buildProjection(inputs, detected, perDay, LIST_PRICES);
     const logs = p.rows.find((r) => r.signal === "logs");
-    expect(logs?.disabled).toBe(true);
-    expect(p.total.totalCost).toBeCloseTo(p.rows.filter((r) => !r.disabled).reduce((a, r) => a + r.totalCost, 0));
+    // Hosts unchanged (half the logs), pods doubled (the other half twice over).
+    expect(logs?.prodPerDay).toBeCloseTo(0.7 * 0.5 + 0.7 * 0.5 * 2);
+    expect(p.rows.find((r) => r.signal === "traces")?.prodPerDay).toBeCloseTo(8.4);
+  });
+
+  it("lists signals attributed to no driver", () => {
+    const inputs = withUnits([], { attribution: { ...defaultInputs().attribution, events: {} } });
+    expect(buildProjection(inputs, detected, perDay, LIST_PRICES).unattributed).toEqual(["events"]);
   });
 });
 
 describe("projectionCsv", () => {
-  it("writes a header, one row per signal and a total", () => {
-    const inputs = { ...defaultInputs(), prodCounts: { hosts: 300, services: 110, pods: 0, clusters: 0, containers: 0 } };
-    const csv = projectionCsv(buildProjection(inputs, detected, perDay, LIST_PRICES), "USD");
-    const lines = csv.trim().split("\n");
-    expect(lines[0]).toBe(
-      "signal,unit,driver,current_per_day,current_driver_count,rate_per_unit,prod_driver_count,prod_per_day,prod_per_month,ingest_cost_month_USD,retain_cost_month_USD,total_cost_month_USD",
-    );
-    expect(lines).toHaveLength(6);
-    expect(lines[1].startsWith("Logs,GiB,hosts,0.7,3,")).toBe(true);
-    expect(lines[5].startsWith("Total,")).toBe(true);
-  });
-  it("leaves disabled figures empty", () => {
-    const inputs = { ...defaultInputs(), drivers: { ...defaultInputs().drivers, logs: "pods" as const } };
-    const csv = projectionCsv(buildProjection(inputs, detected, perDay, LIST_PRICES), "USD");
-    expect(csv.split("\n")[1]).toMatch(/^Logs,GiB,pods,0.7,0,,0,,,/);
-  });
-  it("quotes values containing commas", () => {
-    const inputs = defaultInputs();
-    const csv = projectionCsv(buildProjection(inputs, detected, perDay, LIST_PRICES), "USD");
-    expect(csv).not.toMatch(/,,,,,,,,,,,/);
+  it("writes per-signal, unit and per-driver sections", () => {
+    const p = buildProjection(withUnits([newUnit({ name: 'Prod, "east"', counts: { ...detected } })]), detected, perDay, LIST_PRICES);
+    const sections = projectionCsv(p, "USD").trim().split("\n\n");
+    expect(sections).toHaveLength(3);
+    expect(sections[0].split("\n")).toHaveLength(1 + 4 + 1);
+    expect(sections[0]).toMatch(/^signal,unit,current_per_day,current_cost_month_USD,/);
+    expect(sections[1]).toContain('"Prod, ""east"""');
+    expect(sections[2].split("\n")).toHaveLength(1 + 5);
   });
 });
